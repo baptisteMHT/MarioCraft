@@ -1,0 +1,5 @@
+main: io.github.baptistemht.mariocraft.MarioCraft
+name: MarioCraft
+author: BaptisteMHT
+version: 0.1
+depend: [ProtocolLib]
