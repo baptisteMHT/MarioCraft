@@ -6,18 +6,17 @@ import com.comphenix.protocol.ProtocolManager;
 import com.comphenix.protocol.events.ListenerPriority;
 import io.github.baptistemht.mariocraft.controller.EntityController;
 import io.github.baptistemht.mariocraft.controller.listener.ControllerListeners;
+import io.github.baptistemht.mariocraft.game.GameDifficulty;
 import io.github.baptistemht.mariocraft.vehicle.Vehicle;
 import io.github.baptistemht.mariocraft.world.WorldListeners;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
-import org.bukkit.event.entity.EntityInteractEvent;
-import org.bukkit.event.entity.EntityTargetEvent;
 import org.bukkit.event.player.PlayerJoinEvent;
 import org.bukkit.plugin.java.JavaPlugin;
 
 public class MarioCraft extends JavaPlugin implements Listener {
 
-    public static double diff = 0.6;
+    private GameDifficulty difficulty;
 
     @Override
     public void onEnable() {
@@ -27,6 +26,8 @@ public class MarioCraft extends JavaPlugin implements Listener {
         getServer().getPluginManager().registerEvents(this, this);
         getServer().getPluginManager().registerEvents(new ControllerListeners(), this);
         getServer().getPluginManager().registerEvents(new WorldListeners(), this);
+
+        this.difficulty = GameDifficulty.NORMAL;
     }
 
     @Override
@@ -37,5 +38,9 @@ public class MarioCraft extends JavaPlugin implements Listener {
     @EventHandler
     public void onJoin(PlayerJoinEvent e){
         Vehicle.LIGHT_KART.summon(e.getPlayer());
+    }
+
+    public GameDifficulty getDifficulty() {
+        return difficulty;
     }
 }
