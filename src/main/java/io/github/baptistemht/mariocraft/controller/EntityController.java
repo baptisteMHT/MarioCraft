@@ -8,6 +8,7 @@ import com.comphenix.protocol.events.PacketEvent;
 import io.github.baptistemht.mariocraft.MarioCraft;
 import io.github.baptistemht.mariocraft.util.BoxUtils;
 import io.github.baptistemht.mariocraft.vehicle.Vehicle;
+import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.block.Block;
 import org.bukkit.entity.Entity;
@@ -50,9 +51,8 @@ public class EntityController extends PacketAdapter {
         //ENTITY ORIENTATION
         p.getVehicle().setRotation(p.getLocation().getYaw(), p.getLocation().getPitch());
 
+        //BOX detection
         for (Block b : BoxUtils.getNearbyBlocks(l, 1)){
-
-            //BOX detection
 
             int x = b.getX();
             int y = b.getY() + 2;
@@ -78,7 +78,19 @@ public class EntityController extends PacketAdapter {
                 }
             }
 
-            //VEHICLE DETECTION
+            //COLLISION DETECTION (NOT TESTED YET BUT IT'LL BE WEIRD)
+            for(Player ps : Bukkit.getOnlinePlayers()){
+                if(Vehicle.getVehicleFromPlayer(ps) == null)return;
+                if(ps.getLocation().getBlockX() == l.getBlockX() && ps.getLocation().getBlockY() == l.getBlockY() && ps.getLocation().getBlockZ() == l.getBlockZ() && !ps.getUniqueId().toString().equals(p.getUniqueId().toString())){
+                    if(Vehicle.getVehicleFromPlayer(p).getWeight() > Vehicle.getVehicleFromPlayer(ps).getWeight()){
+                        Vector vector = new Vector(-ps.getLocation().getDirection().getX()*0.1, ps.getLocation().getDirection().getY(), -ps.getLocation().getDirection().getZ()*0.1);
+                        ps.setVelocity(vector);
+                    }else{
+                        Vector vector = new Vector(-p.getLocation().getDirection().getX()*0.1, p.getLocation().getDirection().getY(), -p.getLocation().getDirection().getZ()*0.1);
+                        p.setVelocity(vector);
+                    }
+                }
+            }
 
         }
 
