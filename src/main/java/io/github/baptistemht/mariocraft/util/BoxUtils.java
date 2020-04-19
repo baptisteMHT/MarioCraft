@@ -3,18 +3,17 @@ package io.github.baptistemht.mariocraft.util;
 import io.github.baptistemht.mariocraft.MarioCraft;
 import io.github.baptistemht.mariocraft.game.BoxLoot;
 import org.bukkit.Location;
-import org.bukkit.Material;
 import org.bukkit.World;
+import org.bukkit.block.Block;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.EntityType;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
-import org.bukkit.scheduler.BukkitRunnable;
-import org.bukkit.scheduler.BukkitTask;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Random;
-import java.util.logging.Level;
 
 public class BoxUtils {
 
@@ -58,7 +57,7 @@ public class BoxUtils {
     }
 
     public static ItemStack loot(Player p){
-        BoxLoot loot = BoxLoot.values()[new Random().nextInt(BoxLoot.values().length - 1)];
+        BoxLoot loot = BoxLoot.values()[new Random().nextInt(BoxLoot.values().length)];
         ItemStack s = new ItemStack(loot.getMaterial(), 1);
         ItemMeta Im = s.getItemMeta();
         Im.setUnbreakable(true);
@@ -68,6 +67,18 @@ public class BoxUtils {
         p.getInventory().addItem(s);
 
         return s;
+    }
+
+    public static List<Block> getNearbyBlocks(Location location, int radius) {
+        List<Block> blocks = new ArrayList<Block>();
+        for(int x = location.getBlockX() - radius; x <= location.getBlockX() + radius; x++) {
+            for(int y = location.getBlockY() - radius; y <= location.getBlockY() + radius; y++) {
+                for(int z = location.getBlockZ() - radius; z <= location.getBlockZ() + radius; z++) {
+                    blocks.add(location.getWorld().getBlockAt(x, y, z));
+                }
+            }
+        }
+        return blocks;
     }
 
 }

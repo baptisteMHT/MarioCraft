@@ -33,9 +33,9 @@ public class MarioCraft extends JavaPlugin implements Listener {
         manager.addPacketListener(new EntityController(this, ListenerPriority.HIGHEST, PacketType.Play.Client.STEER_VEHICLE));
 
         getServer().getPluginManager().registerEvents(this, this);
-        getServer().getPluginManager().registerEvents(new ControllerListeners(), this);
+        getServer().getPluginManager().registerEvents(new ControllerListeners(this), this);
         getServer().getPluginManager().registerEvents(new WorldListeners(), this);
-        getServer().getPluginManager().registerEvents(new GameListeners(), this);
+        //getServer().getPluginManager().registerEvents(new GameListeners(), this);
 
         this.difficulty = GameDifficulty.NORMAL;
         boxes = new ArrayList<>();
