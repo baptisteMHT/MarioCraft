@@ -3,3 +3,4 @@ name: MarioCraft
 author: BaptisteMHT
 version: 0.1
 depend: [ProtocolLib]
+api-version: 1.13

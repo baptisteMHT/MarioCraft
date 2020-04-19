@@ -85,9 +85,13 @@ public class EntityController extends PacketAdapter {
                     if(Vehicle.getVehicleFromPlayer(p).getWeight() > Vehicle.getVehicleFromPlayer(ps).getWeight()){
                         Vector vector = new Vector(-ps.getLocation().getDirection().getX()*0.1, ps.getLocation().getDirection().getY(), -ps.getLocation().getDirection().getZ()*0.1);
                         ps.setVelocity(vector);
-                    }else{
+                    }else if(Vehicle.getVehicleFromPlayer(p).getWeight() < Vehicle.getVehicleFromPlayer(ps).getWeight()){
                         Vector vector = new Vector(-p.getLocation().getDirection().getX()*0.1, p.getLocation().getDirection().getY(), -p.getLocation().getDirection().getZ()*0.1);
                         p.setVelocity(vector);
+                    }else {
+                        Vector vector = new Vector(-p.getLocation().getDirection().getX()*0.05, p.getLocation().getDirection().getY(), -p.getLocation().getDirection().getZ()*0.05);
+                        p.setVelocity(vector);
+                        ps.setVelocity(vector);
                     }
                 }
             }

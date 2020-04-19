@@ -7,23 +7,22 @@ import com.comphenix.protocol.events.ListenerPriority;
 import io.github.baptistemht.mariocraft.controller.EntityController;
 import io.github.baptistemht.mariocraft.controller.listener.ControllerListeners;
 import io.github.baptistemht.mariocraft.game.GameDifficulty;
+import io.github.baptistemht.mariocraft.game.gui.GUIListeners;
 import io.github.baptistemht.mariocraft.game.listener.GameListeners;
+import io.github.baptistemht.mariocraft.game.player.PlayerManager;
 import io.github.baptistemht.mariocraft.util.BoxUtils;
-import io.github.baptistemht.mariocraft.vehicle.Vehicle;
 import io.github.baptistemht.mariocraft.world.WorldListeners;
-import org.bukkit.Location;
 import org.bukkit.entity.Entity;
-import org.bukkit.event.EventHandler;
-import org.bukkit.event.Listener;
-import org.bukkit.event.player.PlayerJoinEvent;
 import org.bukkit.plugin.java.JavaPlugin;
 
 import java.util.ArrayList;
 
-public class MarioCraft extends JavaPlugin implements Listener {
+public class MarioCraft extends JavaPlugin {
 
     private GameDifficulty difficulty;
     private ArrayList<Entity> boxes;
+
+    private PlayerManager playerManager;
 
     private static MarioCraft instance;
 
@@ -32,13 +31,15 @@ public class MarioCraft extends JavaPlugin implements Listener {
         ProtocolManager manager = ProtocolLibrary.getProtocolManager();
         manager.addPacketListener(new EntityController(this, ListenerPriority.HIGHEST, PacketType.Play.Client.STEER_VEHICLE));
 
-        getServer().getPluginManager().registerEvents(this, this);
         getServer().getPluginManager().registerEvents(new ControllerListeners(this), this);
         getServer().getPluginManager().registerEvents(new WorldListeners(), this);
-        //getServer().getPluginManager().registerEvents(new GameListeners(), this);
+        getServer().getPluginManager().registerEvents(new GUIListeners(), this);
+        getServer().getPluginManager().registerEvents(new GameListeners(this), this);
 
         this.difficulty = GameDifficulty.NORMAL;
         boxes = new ArrayList<>();
+
+        playerManager = new PlayerManager(this);
 
         instance = this;
     }
@@ -48,20 +49,20 @@ public class MarioCraft extends JavaPlugin implements Listener {
         BoxUtils.resetBoxes();
     }
 
-    @EventHandler
-    public void onJoin(PlayerJoinEvent e){
-        Vehicle.LIGHT_KART.summon(e.getPlayer());
-        Location l = new Location(e.getPlayer().getWorld(), e.getPlayer().getLocation().getBlockX(), e.getPlayer().getLocation().getBlockY(), e.getPlayer().getLocation().getBlockZ());
-        l.setX(l.getX() + 5);
-        BoxUtils.generateBox(l);
-    }
-
     public ArrayList<Entity> getBoxes() {
         return boxes;
     }
 
     public GameDifficulty getDifficulty() {
         return difficulty;
+    }
+
+    public void setDifficulty(GameDifficulty difficulty) {
+        this.difficulty = difficulty;
+    }
+
+    public PlayerManager getPlayerManager() {
+        return playerManager;
     }
 
     public static MarioCraft getInstance() {
