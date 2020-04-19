@@ -51,7 +51,7 @@ public class EntityController extends PacketAdapter {
 
         if(box != null){
 
-            p.getInventory().setItemInMainHand(BoxUtils.loot());
+            BoxUtils.loot(p);
 
             instance.getServer().getScheduler().runTask(instance, () -> BoxUtils.delBox(x, z));
             BukkitTask task = new BukkitRunnable(){
