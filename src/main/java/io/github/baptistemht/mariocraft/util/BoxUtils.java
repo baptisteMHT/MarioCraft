@@ -8,6 +8,8 @@ import org.bukkit.entity.Entity;
 import org.bukkit.entity.EntityType;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
+import org.bukkit.scheduler.BukkitRunnable;
+import org.bukkit.scheduler.BukkitTask;
 
 import java.util.Random;
 
@@ -25,7 +27,7 @@ public class BoxUtils {
         return e;
     }
 
-    public static Entity getBox(double x, double z){
+    public static Entity getBox(int x, int z){
         for(Entity e : MarioCraft.getInstance().getBoxes()){
             if(e.getLocation().getBlockX() == x && e.getLocation().getBlockZ() == z){
                 return e;
@@ -39,6 +41,17 @@ public class BoxUtils {
             e.remove();
         }
         MarioCraft.getInstance().getBoxes().clear();
+    }
+
+    public static boolean delBox(int x, int z){
+        for(Entity e : MarioCraft.getInstance().getBoxes()){
+            if(e.getLocation().getBlockX() == x && e.getLocation().getBlockZ() == z){
+                e.remove();
+                MarioCraft.getInstance().getBoxes().remove(e);
+                return true;
+            }
+        }
+        return false;
     }
 
     public static ItemStack loot(){

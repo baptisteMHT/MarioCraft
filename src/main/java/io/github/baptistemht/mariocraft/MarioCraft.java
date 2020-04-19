@@ -41,13 +41,11 @@ public class MarioCraft extends JavaPlugin implements Listener {
         boxes = new ArrayList<>();
 
         instance = this;
-
-        BoxUtils.resetBoxes();
     }
 
     @Override
     public void onDisable() {
-
+        BoxUtils.resetBoxes();
     }
 
     @EventHandler

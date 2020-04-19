@@ -8,11 +8,12 @@ import com.comphenix.protocol.events.PacketEvent;
 import io.github.baptistemht.mariocraft.MarioCraft;
 import io.github.baptistemht.mariocraft.util.BoxUtils;
 import io.github.baptistemht.mariocraft.vehicle.Vehicle;
+import org.bukkit.Location;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.Player;
+import org.bukkit.scheduler.BukkitRunnable;
+import org.bukkit.scheduler.BukkitTask;
 import org.bukkit.util.Vector;
-
-import java.util.logging.Level;
 
 public class EntityController extends PacketAdapter {
 
@@ -28,6 +29,9 @@ public class EntityController extends PacketAdapter {
         Player p = event.getPlayer();
         Entity e = p.getVehicle();
         Vehicle v = Vehicle.getVehicleFromEntityType(e.getType());
+        Location l = p.getLocation();
+        int x = p.getLocation().getBlockX();
+        int z = p.getLocation().getBlockZ();
 
         WrapperPlayClientSteerVehicle wrapper = new WrapperPlayClientSteerVehicle(event.getPacket());
 
@@ -42,13 +46,21 @@ public class EntityController extends PacketAdapter {
         //ENTITY ORIENTATION
         p.getVehicle().setRotation(p.getLocation().getYaw(), p.getLocation().getPitch());
 
-        Entity box = BoxUtils.getBox(p.getLocation().getBlockX(), p.getLocation().getBlockZ());
+        //LOOT BOX CHECK //WORK ON DETECTION SYSTEM, AREA AROUND THE BOX OR THE PLAYER
+        Entity box = BoxUtils.getBox(x,z);
+
         if(box != null){
+
             p.getInventory().setItemInMainHand(BoxUtils.loot());
-            box.remove();
-            instance.getServer().getScheduler().runTask(instance, box::remove);
-            instance.getBoxes().remove(box);
-            instance.getServer().getScheduler().runTaskLater(instance, (Runnable) BoxUtils.generateBox(p.getLocation()), 200L);
+
+            instance.getServer().getScheduler().runTask(instance, () -> BoxUtils.delBox(x, z));
+            BukkitTask task = new BukkitRunnable(){
+                @Override
+                public void run() {
+                    BoxUtils.generateBox(l);
+                }
+            }.runTaskLater(MarioCraft.getInstance(), 120L);
+
         }
 
     }
