@@ -7,16 +7,16 @@ import org.bukkit.entity.Player;
 
 public enum Vehicle {
 
-    LIGHT_KART("Light Kart", EntityType.CHICKEN,3, 1),
+    LIGHT_KART("Light Kart", EntityType.CHICKEN,2.5, 1),
     KART("Kart", EntityType.SHEEP, 2, 2),
-    HEAVY_KART("Heavy Kart", EntityType.TURTLE, 1, 3);
+    HEAVY_KART("Heavy Kart", EntityType.TURTLE, 1.5, 3);
 
     final String name;
     final EntityType type;
-    final int speed;
+    final double speed;
     final int weight;
 
-    Vehicle(String name, EntityType type, int speed, int weight){
+    Vehicle(String name, EntityType type, double speed, int weight){
         this.name = name;
         this.type = type;
         this.speed = speed;
@@ -31,7 +31,7 @@ public enum Vehicle {
         return type;
     }
 
-    public int getSpeed() {
+    public double getSpeed() {
         return speed;
     }
 
