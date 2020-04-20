@@ -89,7 +89,7 @@ public class EntityController extends PacketAdapter {
 
             //COLLISION DETECTION (NOT TESTED YET BUT IT'LL BE WEIRD)
             if(instance.isCollision()){
-                for(UUID id : instance.getPlayerManager().getDatas().keySet()){
+                for(UUID id : instance.getPlayerManager().getData().keySet()){
                     Player ps = Bukkit.getPlayer(id);
 
                     if(!Bukkit.getOnlinePlayers().contains(ps))return;

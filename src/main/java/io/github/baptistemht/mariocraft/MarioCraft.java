@@ -8,22 +8,27 @@ import io.github.baptistemht.mariocraft.command.CollisionCommand;
 import io.github.baptistemht.mariocraft.controller.EntityController;
 import io.github.baptistemht.mariocraft.controller.listener.ControllerListeners;
 import io.github.baptistemht.mariocraft.game.GameDifficulty;
+import io.github.baptistemht.mariocraft.game.GameState;
 import io.github.baptistemht.mariocraft.game.gui.GUIListeners;
 import io.github.baptistemht.mariocraft.game.listener.GameListeners;
 import io.github.baptistemht.mariocraft.game.player.PlayerManager;
 import io.github.baptistemht.mariocraft.util.BoxUtils;
 import io.github.baptistemht.mariocraft.world.WorldListeners;
+import org.bukkit.Location;
 import org.bukkit.entity.Entity;
 import org.bukkit.plugin.java.JavaPlugin;
 
 import java.util.ArrayList;
+import java.util.List;
 
 public class MarioCraft extends JavaPlugin {
 
     private GameDifficulty difficulty;
+    private GameState gameState;
     private boolean collision;
+    private Location hub;
 
-    private ArrayList<Entity> boxes;
+    private List<Entity> boxes;
 
     private ProtocolManager protocolManager;
     private PlayerManager playerManager;
@@ -35,7 +40,9 @@ public class MarioCraft extends JavaPlugin {
         instance = this;
 
         difficulty = GameDifficulty.NORMAL;
+        gameState = GameState.INIT;
         collision = false;
+        hub = new Location(getServer().getWorld("world"), 0, 60, 0); //TODO ADD CONFIG SUPPORT
 
         boxes = new ArrayList<>();
 
@@ -50,6 +57,8 @@ public class MarioCraft extends JavaPlugin {
         getServer().getPluginManager().registerEvents(new GameListeners(this), this);
 
         getCommand("collision").setExecutor(new CollisionCommand(this));
+
+        gameState = GameState.PRE_GAME;
     }
 
     @Override
@@ -58,7 +67,7 @@ public class MarioCraft extends JavaPlugin {
     }
 
 
-    public ArrayList<Entity> getBoxes() {
+    public List<Entity> getBoxes() {
         return boxes;
     }
 
@@ -78,6 +87,24 @@ public class MarioCraft extends JavaPlugin {
 
     public void setDifficulty(GameDifficulty difficulty) {
         this.difficulty = difficulty;
+    }
+
+
+    public GameState getGameState() {
+        return gameState;
+    }
+
+    public void setGameState(GameState gameState) {
+        this.gameState = gameState;
+    }
+
+
+    public Location getHub() {
+        return hub;
+    }
+
+    public void setHub(Location hub) {
+        this.hub = hub;
     }
 
 

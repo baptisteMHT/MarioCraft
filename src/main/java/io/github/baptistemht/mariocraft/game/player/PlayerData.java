@@ -5,9 +5,10 @@ import io.github.baptistemht.mariocraft.vehicle.Vehicle;
 public class PlayerData {
 
     private Vehicle vehicle;
+    private PlayerState state;
 
-    public PlayerData(){
-
+    public PlayerData(PlayerState state){
+        this.state = state;
     }
 
     public void setVehicle(Vehicle vehicle) {
@@ -16,5 +17,13 @@ public class PlayerData {
 
     public Vehicle getVehicle() {
         return vehicle;
+    }
+
+    public void setState(PlayerState state) {
+        this.state = state;
+    }
+
+    public PlayerState getState() {
+        return state;
     }
 }
