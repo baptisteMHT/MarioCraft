@@ -7,6 +7,7 @@ import com.comphenix.protocol.events.PacketAdapter;
 import com.comphenix.protocol.events.PacketEvent;
 import io.github.baptistemht.mariocraft.MarioCraft;
 import io.github.baptistemht.mariocraft.util.BoxUtils;
+import io.github.baptistemht.mariocraft.util.TrackUtils;
 import io.github.baptistemht.mariocraft.vehicle.Vehicle;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
@@ -19,6 +20,8 @@ import org.bukkit.util.Vector;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.UUID;
+import java.util.logging.Level;
 
 public class EntityController extends PacketAdapter {
 
@@ -40,11 +43,17 @@ public class EntityController extends PacketAdapter {
 
         WrapperPlayClientSteerVehicle wrapper = new WrapperPlayClientSteerVehicle(event.getPacket());
 
+
+        instance.getLogger().log(Level.INFO, "BLOCK FROM LOCATION: " + l.getBlock().getType());
+
+        double xSpeed = TrackUtils.getTrackAdherenceMultiplierFromMaterial(l.getBlock().getType())*instance.getDifficulty().getMultiplier()*v.getSpeed()*p.getLocation().getDirection().getX();
+        double zSpeed = TrackUtils.getTrackAdherenceMultiplierFromMaterial(l.getBlock().getType())*instance.getDifficulty().getMultiplier()*v.getSpeed()*p.getLocation().getDirection().getZ();
+
         if(wrapper.getForward() > 0.1){
-            Vector forward = new Vector((instance.getDifficulty().getMultiplier()*v.getSpeed()*p.getLocation().getDirection().getX()), -0.9, (instance.getDifficulty().getMultiplier()*v.getSpeed()*p.getLocation().getDirection().getZ()));
+            Vector forward = new Vector(xSpeed, -0.9, zSpeed);
             e.setVelocity(forward);
         }else if(wrapper.getForward() < -0.1){
-            Vector backward = new Vector((-0.5*p.getLocation().getDirection().getX()), -0.9, (-0.5*p.getLocation().getDirection().getZ()));
+            Vector backward = new Vector((-0.5*xSpeed), -0.9, (-0.5*zSpeed));
             e.setVelocity(backward);
         }
 
@@ -79,24 +88,30 @@ public class EntityController extends PacketAdapter {
             }
 
             //COLLISION DETECTION (NOT TESTED YET BUT IT'LL BE WEIRD)
-            for(Player ps : Bukkit.getOnlinePlayers()){
-                if(Vehicle.getVehicleFromPlayer(ps) == null)return;
-                if(ps.getLocation().getBlockX() == l.getBlockX() && ps.getLocation().getBlockY() == l.getBlockY() && ps.getLocation().getBlockZ() == l.getBlockZ() && !ps.getUniqueId().toString().equals(p.getUniqueId().toString())){
-                    if(Vehicle.getVehicleFromPlayer(p).getWeight() > Vehicle.getVehicleFromPlayer(ps).getWeight()){
-                        Vector vector = new Vector(-ps.getLocation().getDirection().getX()*0.1, ps.getLocation().getDirection().getY(), -ps.getLocation().getDirection().getZ()*0.1);
-                        ps.setVelocity(vector);
-                    }else if(Vehicle.getVehicleFromPlayer(p).getWeight() < Vehicle.getVehicleFromPlayer(ps).getWeight()){
-                        Vector vector = new Vector(-p.getLocation().getDirection().getX()*0.1, p.getLocation().getDirection().getY(), -p.getLocation().getDirection().getZ()*0.1);
-                        p.setVelocity(vector);
-                    }else {
-                        Vector vector = new Vector(-p.getLocation().getDirection().getX()*0.05, p.getLocation().getDirection().getY(), -p.getLocation().getDirection().getZ()*0.05);
-                        p.setVelocity(vector);
-                        ps.setVelocity(vector);
+            if(instance.isCollision()){
+                for(UUID id : instance.getPlayerManager().getDatas().keySet()){
+                    Player ps = Bukkit.getPlayer(id);
+
+                    if(!Bukkit.getOnlinePlayers().contains(ps))return;
+                    if(Vehicle.getVehicleFromPlayer(ps) == null || ps.getUniqueId().toString().equalsIgnoreCase(p.getUniqueId().toString()))return;
+
+                    if(ps.getLocation().getBlockX() == l.getBlockX() && ps.getLocation().getBlockY() == l.getBlockY() && ps.getLocation().getBlockZ() == l.getBlockZ()){
+                        if(Vehicle.getVehicleFromPlayer(p).getWeight() > Vehicle.getVehicleFromPlayer(ps).getWeight()){
+                            Vector vector = new Vector(-ps.getLocation().getDirection().getX()*0.1, ps.getLocation().getDirection().getY(), -ps.getLocation().getDirection().getZ()*0.1);
+                            ps.setVelocity(vector);
+                        }else if(Vehicle.getVehicleFromPlayer(p).getWeight() < Vehicle.getVehicleFromPlayer(ps).getWeight()){
+                            Vector vector = new Vector(-p.getLocation().getDirection().getX()*0.1, p.getLocation().getDirection().getY(), -p.getLocation().getDirection().getZ()*0.1);
+                            p.setVelocity(vector);
+                        }else {
+                            Vector vector = new Vector(-p.getLocation().getDirection().getX()*0.05, p.getLocation().getDirection().getY(), -p.getLocation().getDirection().getZ()*0.05);
+                            p.setVelocity(vector);
+                            ps.setVelocity(vector);
+                        }
                     }
+
                 }
+
             }
-
         }
-
     }
 }
