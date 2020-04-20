@@ -16,6 +16,7 @@ public class GUIListeners implements Listener {
     public void onInventoryClick(final InventoryClickEvent e) {
         e.setCancelled(true);
         if(e.getInventory().contains(Material.LEATHER_CHESTPLATE)){
+
             final ItemStack clickedItem = e.getCurrentItem();
 
             if (clickedItem == null || clickedItem.getType() == Material.AIR) return;
@@ -24,8 +25,7 @@ public class GUIListeners implements Listener {
 
             p.closeInventory();
             p.sendMessage("You chose: " + clickedItem.getItemMeta().getDisplayName());
-            MarioCraft.getInstance().setDifficulty(GameDifficulty.getDifficultyFromMaterial(clickedItem.getType()));
-            new VehicleSelectorGUI().openInventory(p);
+            MarioCraft.getInstance().getVotes().add(GameDifficulty.getDifficultyFromMaterial(clickedItem.getType()));
 
         }else if (e.getInventory().contains(Material.TURTLE_SPAWN_EGG)){
 

@@ -5,21 +5,31 @@ import com.comphenix.protocol.ProtocolLibrary;
 import com.comphenix.protocol.ProtocolManager;
 import com.comphenix.protocol.events.ListenerPriority;
 import io.github.baptistemht.mariocraft.command.CollisionCommand;
+import io.github.baptistemht.mariocraft.command.StartCommand;
 import io.github.baptistemht.mariocraft.controller.EntityController;
 import io.github.baptistemht.mariocraft.controller.listener.ControllerListeners;
 import io.github.baptistemht.mariocraft.game.GameDifficulty;
 import io.github.baptistemht.mariocraft.game.GameState;
+import io.github.baptistemht.mariocraft.game.gui.DifficultySelectorGUI;
 import io.github.baptistemht.mariocraft.game.gui.GUIListeners;
 import io.github.baptistemht.mariocraft.game.listener.GameListeners;
 import io.github.baptistemht.mariocraft.game.player.PlayerManager;
+import io.github.baptistemht.mariocraft.game.player.PlayerState;
+import io.github.baptistemht.mariocraft.task.DifficultyVoteTask;
 import io.github.baptistemht.mariocraft.util.BoxUtils;
 import io.github.baptistemht.mariocraft.world.WorldListeners;
+import org.bukkit.Bukkit;
 import org.bukkit.Location;
+import org.bukkit.Material;
 import org.bukkit.entity.Entity;
+import org.bukkit.entity.Player;
+import org.bukkit.inventory.ItemStack;
+import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.plugin.java.JavaPlugin;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.UUID;
 
 public class MarioCraft extends JavaPlugin {
 
@@ -29,6 +39,7 @@ public class MarioCraft extends JavaPlugin {
     private Location hub;
 
     private List<Entity> boxes;
+    private List<GameDifficulty> votes;
 
     private ProtocolManager protocolManager;
     private PlayerManager playerManager;
@@ -42,12 +53,13 @@ public class MarioCraft extends JavaPlugin {
         difficulty = GameDifficulty.NORMAL;
         gameState = GameState.INIT;
         collision = false;
-        hub = new Location(getServer().getWorld("world"), 0, 60, 0); //TODO ADD CONFIG SUPPORT
+        hub = new Location(getServer().getWorld("world"), 0, 64, 0); //TODO ADD CONFIG SUPPORT
 
+        votes = new ArrayList<>();
         boxes = new ArrayList<>();
 
         protocolManager = ProtocolLibrary.getProtocolManager();
-        playerManager = new PlayerManager(this);
+        playerManager = new PlayerManager(this, 8, 12);
 
         protocolManager.addPacketListener(new EntityController(this, ListenerPriority.HIGHEST, PacketType.Play.Client.STEER_VEHICLE));
 
@@ -57,6 +69,7 @@ public class MarioCraft extends JavaPlugin {
         getServer().getPluginManager().registerEvents(new GameListeners(this), this);
 
         getCommand("collision").setExecutor(new CollisionCommand(this));
+        getCommand("start").setExecutor(new StartCommand(this));
 
         gameState = GameState.PRE_GAME;
     }
@@ -64,6 +77,14 @@ public class MarioCraft extends JavaPlugin {
     @Override
     public void onDisable() {
         BoxUtils.resetBoxes();
+    }
+
+
+    public void setupSequence(){
+        new DifficultyVoteTask(this);
+        for(UUID id : playerManager.getPlayersData().keySet()){
+            new DifficultySelectorGUI().openInventory(Bukkit.getPlayer(id));
+        }
     }
 
 
@@ -105,6 +126,11 @@ public class MarioCraft extends JavaPlugin {
 
     public void setHub(Location hub) {
         this.hub = hub;
+    }
+
+
+    public List<GameDifficulty> getVotes() {
+        return votes;
     }
 
 

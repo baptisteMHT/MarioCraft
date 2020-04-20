@@ -8,3 +8,6 @@ commands:
   collision:
     description: Enable/Disable collisions.
     usage: /collision
+  start:
+    description: Start game.
+    usage: /start

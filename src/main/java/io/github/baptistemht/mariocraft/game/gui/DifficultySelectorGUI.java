@@ -16,7 +16,7 @@ public class DifficultySelectorGUI implements InventoryHolder {
     private final Inventory inv;
 
     public DifficultySelectorGUI(){
-        inv = Bukkit.createInventory(this, 9 ,"Choose difficulty");
+        inv = Bukkit.createInventory(this, 9,"Choose difficulty");
 
         initializeItems();
     }

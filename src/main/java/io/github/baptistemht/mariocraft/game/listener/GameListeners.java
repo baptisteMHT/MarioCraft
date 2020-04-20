@@ -7,6 +7,7 @@ import io.github.baptistemht.mariocraft.game.gui.DifficultySelectorGUI;
 import io.github.baptistemht.mariocraft.game.gui.VehicleSelectorGUI;
 import io.github.baptistemht.mariocraft.game.player.PlayerState;
 import io.github.baptistemht.mariocraft.util.BoxUtils;
+import io.github.baptistemht.mariocraft.util.GameUtils;
 import io.github.baptistemht.mariocraft.util.LootUtils;
 import org.bukkit.GameMode;
 import org.bukkit.Location;
@@ -17,6 +18,8 @@ import org.bukkit.event.block.Action;
 import org.bukkit.event.player.*;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.scheduler.BukkitRunnable;
+
+import java.util.logging.Level;
 
 public class GameListeners implements Listener {
 
@@ -59,11 +62,21 @@ public class GameListeners implements Listener {
                 e.disallow(PlayerLoginEvent.Result.KICK_OTHER, "Server not ready.");
                 break;
             case PRE_GAME:
-                instance.getPlayerManager().insertPlayerData(e.getPlayer().getUniqueId(), PlayerState.PLAYER);
+                if(instance.getPlayerManager().getPlayersData().size() < instance.getPlayerManager().getPlayerLimit()){
+                    instance.getPlayerManager().insertPlayerData(e.getPlayer().getUniqueId(), PlayerState.PLAYER);
+                }else if(instance.getPlayerManager().getSpecsData().size() < instance.getPlayerManager().getPlayerLimit()){
+                    instance.getPlayerManager().insertPlayerData(e.getPlayer().getUniqueId(), PlayerState.SPECTATOR);
+                }else {
+                    e.disallow(PlayerLoginEvent.Result.KICK_OTHER, "Server full.");
+                }
                 break;
             case GAME:
-                if(!instance.getPlayerManager().getData().containsKey(e.getPlayer().getUniqueId())){
-                    instance.getPlayerManager().insertPlayerData(e.getPlayer().getUniqueId(), PlayerState.SPECTATOR);
+                if(!instance.getPlayerManager().getPlayersData().containsKey(e.getPlayer().getUniqueId())){
+                    if(instance.getPlayerManager().getSpecsData().size() < instance.getPlayerManager().getSpecLimit()){
+                        instance.getPlayerManager().insertPlayerData(e.getPlayer().getUniqueId(), PlayerState.SPECTATOR);
+                    }else{
+                        e.disallow(PlayerLoginEvent.Result.KICK_OTHER, "Server full.");
+                    }
                 }
                 break;
         }
@@ -74,13 +87,15 @@ public class GameListeners implements Listener {
         if(instance.getPlayerManager().getPlayerData(e.getPlayer().getUniqueId()).getState() == PlayerState.PLAYER){
             if(instance.getGameState() == GameState.GAME)return;
             e.getPlayer().setGameMode(GameMode.SURVIVAL);
-            new DifficultySelectorGUI().openInventory(e.getPlayer());
+            e.getPlayer().setTotalExperience(0);
+            GameUtils.tpPlayerToLobby(e.getPlayer());
 
-            Location l = new Location(e.getPlayer().getWorld(), e.getPlayer().getLocation().getBlockX(), e.getPlayer().getLocation().getBlockY(), e.getPlayer().getLocation().getBlockZ());
-            l.setX(l.getX() + 5);
-            BoxUtils.generateBox(l);
+            instance.getLogger().log(Level.INFO, "STATE: " + instance.getPlayerManager().getPlayerData(e.getPlayer().getUniqueId()).getState());
+
+            e.setJoinMessage("[MarioCraft] " + e.getPlayer().getName() + " joined the game! [" + instance.getPlayerManager().getPlayersData().size() + "/" + instance.getPlayerManager().getPlayerLimit()+ "]");
         } else{
             e.getPlayer().setGameMode(GameMode.SPECTATOR);
+            e.setJoinMessage(null);
         }
     }
 
@@ -90,6 +105,11 @@ public class GameListeners implements Listener {
             case PRE_GAME:
             case POST_GAME:
                 instance.getPlayerManager().getData().remove(e.getPlayer().getUniqueId());
+                break;
+            case GAME:
+                if(instance.getPlayerManager().getPlayerData(e.getPlayer().getUniqueId()).getState() == PlayerState.SPECTATOR){
+                    instance.getPlayerManager().getData().remove(e.getPlayer().getUniqueId());
+                }
                 break;
         }
     }
