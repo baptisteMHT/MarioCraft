@@ -4,6 +4,7 @@ import com.comphenix.protocol.PacketType;
 import com.comphenix.protocol.ProtocolLibrary;
 import com.comphenix.protocol.ProtocolManager;
 import com.comphenix.protocol.events.ListenerPriority;
+import io.github.baptistemht.mariocraft.command.CollisionCommand;
 import io.github.baptistemht.mariocraft.controller.EntityController;
 import io.github.baptistemht.mariocraft.controller.listener.ControllerListeners;
 import io.github.baptistemht.mariocraft.game.GameDifficulty;
@@ -20,28 +21,35 @@ import java.util.ArrayList;
 public class MarioCraft extends JavaPlugin {
 
     private GameDifficulty difficulty;
+    private boolean collision;
+
     private ArrayList<Entity> boxes;
 
+    private ProtocolManager protocolManager;
     private PlayerManager playerManager;
 
     private static MarioCraft instance;
 
     @Override
     public void onEnable() {
-        ProtocolManager manager = ProtocolLibrary.getProtocolManager();
-        manager.addPacketListener(new EntityController(this, ListenerPriority.HIGHEST, PacketType.Play.Client.STEER_VEHICLE));
+        instance = this;
+
+        difficulty = GameDifficulty.NORMAL;
+        collision = false;
+
+        boxes = new ArrayList<>();
+
+        protocolManager = ProtocolLibrary.getProtocolManager();
+        playerManager = new PlayerManager(this);
+
+        protocolManager.addPacketListener(new EntityController(this, ListenerPriority.HIGHEST, PacketType.Play.Client.STEER_VEHICLE));
 
         getServer().getPluginManager().registerEvents(new ControllerListeners(this), this);
         getServer().getPluginManager().registerEvents(new WorldListeners(), this);
         getServer().getPluginManager().registerEvents(new GUIListeners(), this);
         getServer().getPluginManager().registerEvents(new GameListeners(this), this);
 
-        this.difficulty = GameDifficulty.NORMAL;
-        boxes = new ArrayList<>();
-
-        playerManager = new PlayerManager(this);
-
-        instance = this;
+        getCommand("collision").setExecutor(new CollisionCommand(this));
     }
 
     @Override
@@ -49,9 +57,20 @@ public class MarioCraft extends JavaPlugin {
         BoxUtils.resetBoxes();
     }
 
+
     public ArrayList<Entity> getBoxes() {
         return boxes;
     }
+
+
+    public boolean isCollision() {
+        return collision;
+    }
+
+    public void setCollision(boolean collision) {
+        this.collision = collision;
+    }
+
 
     public GameDifficulty getDifficulty() {
         return difficulty;
@@ -61,9 +80,15 @@ public class MarioCraft extends JavaPlugin {
         this.difficulty = difficulty;
     }
 
+
     public PlayerManager getPlayerManager() {
         return playerManager;
     }
+
+    public ProtocolManager getProtocolManager() {
+        return protocolManager;
+    }
+
 
     public static MarioCraft getInstance() {
         return instance;
