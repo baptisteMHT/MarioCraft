@@ -15,10 +15,12 @@ public class TracksManager {
     private final MarioCraft instance;
 
     private List<Track> tracks;
+    private List<Track> tracksToRandomize;
 
     public TracksManager(MarioCraft instance) {
         this.instance = instance;
         tracks = new ArrayList<>();
+        tracksToRandomize = new ArrayList<>();
 
         new BukkitRunnable() {
             @Override
@@ -33,6 +35,7 @@ public class TracksManager {
         instance.getLogger().log(Level.INFO, "[TrackFinder] Looking for tracks...");
         instance.getTrackListGUI().initializeItems();
         for(World w : instance.getServer().getWorlds()){
+            if(!w.getName().contains("track"))return;
             String[] names = w.getName().split("-");
             if(names[0].equalsIgnoreCase("track")){
                 Material m = Material.valueOf(names[1]);
@@ -76,5 +79,9 @@ public class TracksManager {
 
     public List<Track> getTracks() {
         return tracks;
+    }
+
+    public List<Track> getTTR() {
+        return tracksToRandomize;
     }
 }

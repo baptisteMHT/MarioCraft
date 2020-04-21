@@ -3,29 +3,41 @@ package io.github.baptistemht.mariocraft.task;
 import io.github.baptistemht.mariocraft.MarioCraft;
 import io.github.baptistemht.mariocraft.game.GameDifficulty;
 import org.bukkit.Bukkit;
+import org.bukkit.Material;
 import org.bukkit.entity.Player;
+import org.bukkit.inventory.ItemStack;
+import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.scheduler.BukkitRunnable;
 
 import java.util.Arrays;
 import java.util.Collections;
+import java.util.UUID;
 
 public class DifficultyVoteTask {
 
-    private MarioCraft instance;
+    private final MarioCraft instance;
 
     private int i;
 
     public DifficultyVoteTask(MarioCraft instance){
         this.instance = instance;
 
+        ItemStack s = new ItemStack(Material.DIAMOND_SWORD);
+        ItemMeta m = s.getItemMeta();
+        m.setDisplayName("Difficulty");
+        s.setItemMeta(m);
+
+        for(UUID id : instance.getPlayerManager().getPlayersData().keySet()){
+            Bukkit.getPlayer(id).getInventory().addItem(s);
+        }
+
+        Bukkit.broadcastMessage("Difficulty vote started! 60 seconds before the vote closes.");
+
         i = 60;
 
         new BukkitRunnable() {
             @Override
             public void run() {
-                if(i == 60) {
-                    Bukkit.broadcastMessage("Difficulty vote started! 60 seconds before the vote closes.");
-                }
 
                 for(Player p : Bukkit.getOnlinePlayers()){
                     p.setExp(i);
@@ -81,8 +93,13 @@ public class DifficultyVoteTask {
             instance.setDifficulty(GameDifficulty.NORMAL);
         }
 
-        new VehicleSelectorTask(instance);
-
         Bukkit.broadcastMessage("[MarioCraft] Vote closed! Difficulty set to " + instance.getDifficulty().getName());
+
+        new BukkitRunnable() {
+            @Override
+            public void run() {
+                new VehicleSelectorTask(instance);
+            }
+        }.runTaskLater(instance, 100L);
     }
 }

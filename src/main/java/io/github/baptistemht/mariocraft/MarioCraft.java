@@ -96,16 +96,7 @@ public class MarioCraft extends JavaPlugin {
     public void setupSequence(){
         gameState = GameState.GAME;
 
-        ItemStack s = new ItemStack(Material.DIAMOND_SWORD);
-        ItemMeta m = s.getItemMeta();
-        m.setDisplayName("Difficulty");
-        s.setItemMeta(m);
-
         new DifficultyVoteTask(this);
-
-        for(UUID id : playerManager.getPlayersData().keySet()){
-            Bukkit.getPlayer(id).getInventory().addItem(s);
-        }
     }
 
 
@@ -166,6 +157,7 @@ public class MarioCraft extends JavaPlugin {
     public TrackListGUI getTrackListGUI() {
         return trackListGUI;
     }
+
 
     public PlayerManager getPlayerManager() {
         return playerManager;

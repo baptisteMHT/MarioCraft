@@ -6,31 +6,32 @@ import org.bukkit.Material;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
+import org.bukkit.scheduler.BukkitRunnable;
 
 import java.util.Set;
 import java.util.UUID;
 
 public class VehicleSelectorTask {
 
-    private MarioCraft instance;
+    private final MarioCraft instance;
 
     public VehicleSelectorTask(MarioCraft instance){
         this.instance = instance;
+
+        Set<UUID> ids = instance.getPlayerManager().getPlayersData().keySet();
 
         ItemStack s = new ItemStack(Material.BEE_SPAWN_EGG);
         ItemMeta m = s.getItemMeta();
         m.setDisplayName("Kart selector");
         s.setItemMeta(m);
 
-        for(UUID id : instance.getPlayerManager().getPlayersData().keySet()){
-            Player p = Bukkit.getPlayer(id);
-            p.getInventory().addItem(s);
+        for(UUID id : ids){
+            Bukkit.getPlayer(id).getInventory().addItem(s);
         }
 
         Bukkit.broadcastMessage("[MarioCraft] Choose your kart!");
 
 
-        Set<UUID> ids = instance.getPlayerManager().getPlayersData().keySet();
         boolean done = false;
         int i = 0;
 
@@ -42,8 +43,21 @@ public class VehicleSelectorTask {
             }
             if(i >= instance.getPlayerManager().getPlayersData().size()){
                 done = true;
-                Bukkit.broadcastMessage("[MarioCraft] + Everyone chose a kart! It's racing time!");
-                //WAIT 5 SEC THEN TP EVERYONE TO THE GRID AND SUMMON KARTS.
+
+                Bukkit.broadcastMessage("[MarioCraft] Everyone chose a kart!");
+
+                for(Player p : Bukkit.getOnlinePlayers()){
+                    p.getInventory().clear();
+                    p.updateInventory();
+                }
+
+                new BukkitRunnable() {
+                    @Override
+                    public void run() {
+                        new TrackSelectionTask(instance);
+                    }
+                }.runTaskLater(instance, 100L);
+
             }
         }
     }

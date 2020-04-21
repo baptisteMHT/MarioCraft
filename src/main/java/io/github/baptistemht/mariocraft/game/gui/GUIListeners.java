@@ -2,6 +2,7 @@ package io.github.baptistemht.mariocraft.game.gui;
 
 import io.github.baptistemht.mariocraft.MarioCraft;
 import io.github.baptistemht.mariocraft.game.GameDifficulty;
+import io.github.baptistemht.mariocraft.track.Track;
 import io.github.baptistemht.mariocraft.vehicle.Vehicle;
 import org.bukkit.Material;
 import org.bukkit.entity.Player;
@@ -29,26 +30,21 @@ public class GUIListeners implements Listener {
 
         if(e.getInventory().getHolder().equals(instance.getDifficultySelectorGUI())){
 
-            p.closeInventory();
-            p.sendMessage("You chose: " + s.getItemMeta().getDisplayName());
-            p.getInventory().remove(p.getInventory().getItemInMainHand());
-            p.updateInventory();
-
             MarioCraft.getInstance().getVotes().add(GameDifficulty.getDifficultyFromMaterial(s.getType()));
 
         }else if (e.getInventory().getHolder().equals(instance.getVehicleSelectorGUI())){
-
-            p.closeInventory();
-            p.sendMessage("You chose: " + s.getItemMeta().getDisplayName());
-            p.getInventory().remove(p.getInventory().getItemInMainHand());
-            p.updateInventory();
 
             instance.getPlayerManager().getDataFromPlayer(p).setVehicle(Vehicle.getVehicleFromName(s.getItemMeta().getDisplayName()));
 
         }else if(e.getInventory().getHolder().equals(instance.getTrackListGUI())){
 
-            p.closeInventory();
-            p.sendMessage("You chose: " + s.getItemMeta().getDisplayName());
+            instance.getTracksManager().getTTR().add(instance.getTracksManager().getTrackFromName(s.getItemMeta().getDisplayName()));
+
         }
+
+        p.closeInventory();
+        p.sendMessage("You chose: " + s.getItemMeta().getDisplayName());
+        p.getInventory().remove(p.getInventory().getItemInMainHand());
+        p.updateInventory();
     }
 }
