@@ -55,10 +55,20 @@ public class MarioCraft extends JavaPlugin {
         difficulty = GameDifficulty.NORMAL;
         gameState = GameState.INIT;
         collision = false;
-        hub = new Location(getServer().getWorld("world"), 0, 64, 0); //TODO ADD CONFIG SUPPORT
+        hub = new Location(getServer().getWorld("world"), getServer().getWorld("world").getSpawnLocation().getX(), getServer().getWorld("world").getSpawnLocation().getY(), getServer().getWorld("world").getSpawnLocation().getZ());
 
         votes = new ArrayList<>();
         boxes = new ArrayList<>();
+
+        difficultySelectorGUI = new DifficultySelectorGUI();
+        vehicleSelectorGUI = new VehicleSelectorGUI();
+        trackListGUI = new TrackListGUI();
+
+        protocolManager = ProtocolLibrary.getProtocolManager();
+        playerManager = new PlayerManager(this, 9, 11);
+        tracksManager = new TracksManager(this);
+
+        protocolManager.addPacketListener(new EntityController(this, ListenerPriority.HIGHEST, PacketType.Play.Client.STEER_VEHICLE));
 
         getServer().getPluginManager().registerEvents(new ControllerListeners(this), this);
         getServer().getPluginManager().registerEvents(new WorldListeners(), this);
@@ -68,16 +78,6 @@ public class MarioCraft extends JavaPlugin {
         getCommand("collision").setExecutor(new CollisionCommand(this));
         getCommand("start").setExecutor(new StartCommand(this));
         getCommand("reloadtracks").setExecutor(new TrackCommand(this));
-
-        difficultySelectorGUI = new DifficultySelectorGUI();
-        vehicleSelectorGUI = new VehicleSelectorGUI();
-        trackListGUI = new TrackListGUI();
-
-        protocolManager = ProtocolLibrary.getProtocolManager();
-        playerManager = new PlayerManager(this, 8, 12);
-        tracksManager = new TracksManager(this);
-
-        protocolManager.addPacketListener(new EntityController(this, ListenerPriority.HIGHEST, PacketType.Play.Client.STEER_VEHICLE));
 
         tracksManager.loadTracks();
 

@@ -2,6 +2,7 @@ package io.github.baptistemht.mariocraft.util;
 
 import io.github.baptistemht.mariocraft.MarioCraft;
 import io.github.baptistemht.mariocraft.game.BoxLoot;
+import io.github.baptistemht.mariocraft.track.Track;
 import org.bukkit.Location;
 import org.bukkit.World;
 import org.bukkit.block.Block;

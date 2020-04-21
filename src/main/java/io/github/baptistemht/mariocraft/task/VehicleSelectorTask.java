@@ -15,8 +15,12 @@ public class VehicleSelectorTask {
 
     private final MarioCraft instance;
 
+    int i;
+
     public VehicleSelectorTask(MarioCraft instance){
         this.instance = instance;
+
+        i = 0;
 
         Set<UUID> ids = instance.getPlayerManager().getPlayersData().keySet();
 
@@ -31,35 +35,35 @@ public class VehicleSelectorTask {
 
         Bukkit.broadcastMessage("[MarioCraft] Choose your kart!");
 
-
-        boolean done = false;
-        int i = 0;
-
-        while(!done){
-            for(UUID id : ids){
-                if(instance.getPlayerManager().getPlayerData(id).getVehicle() != null){
-                    i++;
-                }
-            }
-            if(i >= instance.getPlayerManager().getPlayersData().size()){
-                done = true;
-
-                Bukkit.broadcastMessage("[MarioCraft] Everyone chose a kart!");
-
-                for(Player p : Bukkit.getOnlinePlayers()){
-                    p.getInventory().clear();
-                    p.updateInventory();
-                }
-
-                new BukkitRunnable() {
-                    @Override
-                    public void run() {
-                        new TrackSelectionTask(instance);
+        new BukkitRunnable() {
+            @Override
+            public void run() {
+                for(UUID id : ids){
+                    if(instance.getPlayerManager().getPlayerData(id).getVehicle() != null){
+                        i++;
                     }
-                }.runTaskLater(instance, 100L);
+                }
+                if(i >= instance.getPlayerManager().getPlayersData().size()){
 
+                    Bukkit.broadcastMessage("[MarioCraft] Everyone chose a kart!");
+
+                    for(Player p : Bukkit.getOnlinePlayers()){
+                        p.getInventory().clear();
+                        p.updateInventory();
+                    }
+
+                    new BukkitRunnable() {
+                        @Override
+                        public void run() {
+                            new TrackSelectionTask(instance);
+                        }
+                    }.runTaskLater(instance, 60L);
+
+                    this.cancel();
+
+                }
             }
-        }
+        }.runTaskTimer(instance, 0L, 10L);
     }
 
 

@@ -40,14 +40,13 @@ public class EntityController extends PacketAdapter {
         Entity e = p.getVehicle();
         Vehicle v = Vehicle.getVehicleFromEntityType(e.getType());
         Location l = p.getLocation();
+        Block standingOnBlock = p.getWorld().getBlockAt(l.getBlockX(), l.getBlockY() - 1, l.getBlockZ());
 
         WrapperPlayClientSteerVehicle wrapper = new WrapperPlayClientSteerVehicle(event.getPacket());
 
 
-        instance.getLogger().log(Level.INFO, "BLOCK FROM LOCATION: " + l.getBlock().getType());
-
-        double xSpeed = TrackUtils.getTrackAdherenceMultiplierFromMaterial(l.getBlock().getType())*instance.getDifficulty().getMultiplier()*v.getSpeed()*p.getLocation().getDirection().getX();
-        double zSpeed = TrackUtils.getTrackAdherenceMultiplierFromMaterial(l.getBlock().getType())*instance.getDifficulty().getMultiplier()*v.getSpeed()*p.getLocation().getDirection().getZ();
+        double xSpeed = TrackUtils.getTrackAdherenceMultiplierFromMaterial(standingOnBlock.getType())*instance.getDifficulty().getMultiplier()*v.getSpeed()*p.getLocation().getDirection().getX();
+        double zSpeed = TrackUtils.getTrackAdherenceMultiplierFromMaterial(standingOnBlock.getType())*instance.getDifficulty().getMultiplier()*v.getSpeed()*p.getLocation().getDirection().getZ();
 
         if(wrapper.getForward() > 0.1){
             Vector forward = new Vector(xSpeed, -0.9, zSpeed);

@@ -39,10 +39,6 @@ public class DifficultyVoteTask {
             @Override
             public void run() {
 
-                for(Player p : Bukkit.getOnlinePlayers()){
-                    p.setExp(i);
-                }
-
                 if(MarioCraft.getInstance().getVotes().size() >= MarioCraft.getInstance().getPlayerManager().getPlayersData().size() || i == 0){
 
                     calculateDiff();
@@ -100,6 +96,6 @@ public class DifficultyVoteTask {
             public void run() {
                 new VehicleSelectorTask(instance);
             }
-        }.runTaskLater(instance, 100L);
+        }.runTaskLater(instance, 60L);
     }
 }

@@ -2,11 +2,13 @@ package io.github.baptistemht.mariocraft.task;
 
 import io.github.baptistemht.mariocraft.MarioCraft;
 import io.github.baptistemht.mariocraft.track.Track;
+import io.github.baptistemht.mariocraft.util.GameUtils;
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
+import org.bukkit.scheduler.BukkitRunnable;
 
 import java.util.Random;
 import java.util.Set;
@@ -33,24 +35,34 @@ public class TrackSelectionTask {
 
         Bukkit.broadcastMessage("[MarioCraft] Choose a track!");
 
-        boolean done = false;
+        new BukkitRunnable() {
+            @Override
+            public void run() {
+                if(instance.getTracksManager().getTTR().size() >= ids.size()){
 
-        while(!done){
-            if(instance.getTracksManager().getTTR().size() >= ids.size()){
-                done = true;
+                    Track t = instance.getTracksManager().getTracks().get(new Random().nextInt(instance.getTracksManager().getTTR().size()));
 
-                Track t = instance.getTracksManager().getTracks().get(new Random().nextInt(instance.getTracksManager().getTTR().size()));
+                    Bukkit.broadcastMessage("[MarioCraft] Everyone chose a track! Selected track: " + t.getName().replace("_", " "));
 
-                Bukkit.broadcastMessage("[MarioCraft] Everyone chose a track! Selected track: " + t.getName());
+                    for(Player p : Bukkit.getOnlinePlayers()){
+                        p.getInventory().clear();
+                        p.updateInventory();
+                    }
 
-                for(Player p : Bukkit.getOnlinePlayers()){
-                    p.getInventory().clear();
-                    p.updateInventory();
+                    new BukkitRunnable() {
+                        @Override
+                        public void run() {
+                            GameUtils.tpAllToTrack(t);
+                            for(UUID id : instance.getPlayerManager().getPlayersData().keySet()){
+                                instance.getPlayerManager().getPlayerData(id).getVehicle().summon(Bukkit.getPlayer(id));
+                            }
+                        }
+                    }.runTaskLater(instance, 60L);
+
+                    this.cancel();
                 }
-
-                //WAIT 5 SEC THEN TP EVERYONE TO THE TRACK
             }
-        }
+        }.runTaskTimer(instance, 0L, 10L);
     }
 
 

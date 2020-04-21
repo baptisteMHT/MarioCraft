@@ -46,7 +46,11 @@ public class GameListeners implements Listener {
             }
 
             if(s.getType() == Material.BEE_SPAWN_EGG){
-                instance.getDifficultySelectorGUI().openInventory(p);
+                instance.getVehicleSelectorGUI().openInventory(p);
+                return;
+            }
+            if(s.getType() == Material.MUSIC_DISC_WARD){
+                instance.getTrackListGUI().openInventory(p);
                 return;
             }
 
@@ -116,6 +120,8 @@ public class GameListeners implements Listener {
             e.getPlayer().setGameMode(GameMode.SPECTATOR);
             e.setJoinMessage(null);
         }
+
+        e.getPlayer().getInventory().clear();
     }
 
     @EventHandler
