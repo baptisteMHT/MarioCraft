@@ -3,8 +3,9 @@ package io.github.baptistemht.mariocraft.track;
 import io.github.baptistemht.mariocraft.MarioCraft;
 import org.bukkit.Material;
 import org.bukkit.World;
-import org.bukkit.scheduler.BukkitRunnable;
+import org.bukkit.WorldCreator;
 
+import java.io.File;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
@@ -21,39 +22,47 @@ public class TracksManager {
         this.instance = instance;
         tracks = new ArrayList<>();
         tracksToRandomize = new ArrayList<>();
-
-        new BukkitRunnable() {
-            @Override
-            public void run() {
-                loadTracks();
-            }
-        }.runTaskAsynchronously(instance);
     }
 
-    private void loadTracks(){
+    public void loadTracks(){
         long t0 = new Date().getTime();
         instance.getLogger().log(Level.INFO, "[TrackFinder] Looking for tracks...");
-        instance.getTrackListGUI().initializeItems();
+
+        List<String> wNames = new ArrayList<>();
+
         for(World w : instance.getServer().getWorlds()){
-            if(!w.getName().contains("track"))return;
-            String[] names = w.getName().split("-");
-            if(names[0].equalsIgnoreCase("track")){
-                Material m = Material.valueOf(names[1]);
-                tracks.add(new Track(names[1], w, w.getSpawnLocation(), m));
-                instance.getLogger().log(Level.INFO, "[TrackFinder] Track " + names[1] + " registered.");
+            wNames.add(w.getName());
+            if(w.getName().contains("track")){
+                tracks.add(new Track(w.getName().split("-")[1], w, w.getSpawnLocation(), Material.valueOf(w.getName().split("-")[2].toUpperCase())));
+                instance.getLogger().log(Level.INFO, "[TrackFinder] Track " + w.getName().split("-")[1] + " registered.");
             }
         }
+
+        for(File f : instance.getServer().getWorldContainer().listFiles()){
+            if(f.getName().contains("track")){
+
+                String name = f.getName();
+                String s[] = name.split("-");
+
+                if(!wNames.contains(f.getName())){
+
+                    World w = instance.getServer().createWorld(new WorldCreator(f.getName()));
+                    Material m = Material.valueOf(s[2].toUpperCase());
+
+                    tracks.add(new Track(s[1], w, w.getSpawnLocation(), m));
+                    instance.getLogger().log(Level.INFO, "[TrackFinder] Track " + s[1] + " registered.");
+
+                }
+            }
+        }
+
         if(tracks.size() == 0){
             instance.getLogger().log(Level.WARNING, "[TrackFinder] 0 track found. Trying again in 2 minutes.");
-            new BukkitRunnable() {
-                @Override
-                public void run() {
-                    loadTracks();
-                }
-            }.runTaskLaterAsynchronously(instance, 2400L);
-            return;
+            loadTracks();
         }
-        instance.getLogger().log(Level.INFO, "[TrackFinder] " + tracks.size() + "track(s) registered in " + (new Date().getTime() - t0) + "ms.");
+        instance.getLogger().log(Level.INFO, "[TrackFinder] " + tracks.size() + " track(s) registered in " + (new Date().getTime() - t0) + "ms.");
+
+        instance.getTrackListGUI().initializeItems();
     }
 
     public Track getTrackFromName(String name){

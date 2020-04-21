@@ -21,17 +21,12 @@ import io.github.baptistemht.mariocraft.task.DifficultyVoteTask;
 import io.github.baptistemht.mariocraft.track.TracksManager;
 import io.github.baptistemht.mariocraft.util.BoxUtils;
 import io.github.baptistemht.mariocraft.world.WorldListeners;
-import org.bukkit.Bukkit;
-import org.bukkit.Location;
-import org.bukkit.Material;
+import org.bukkit.*;
 import org.bukkit.entity.Entity;
-import org.bukkit.inventory.ItemStack;
-import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.plugin.java.JavaPlugin;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.UUID;
 
 public class MarioCraft extends JavaPlugin {
 
@@ -65,6 +60,15 @@ public class MarioCraft extends JavaPlugin {
         votes = new ArrayList<>();
         boxes = new ArrayList<>();
 
+        getServer().getPluginManager().registerEvents(new ControllerListeners(this), this);
+        getServer().getPluginManager().registerEvents(new WorldListeners(), this);
+        getServer().getPluginManager().registerEvents(new GUIListeners(this), this);
+        getServer().getPluginManager().registerEvents(new GameListeners(this), this);
+
+        getCommand("collision").setExecutor(new CollisionCommand(this));
+        getCommand("start").setExecutor(new StartCommand(this));
+        getCommand("reloadtracks").setExecutor(new TrackCommand(this));
+
         difficultySelectorGUI = new DifficultySelectorGUI();
         vehicleSelectorGUI = new VehicleSelectorGUI();
         trackListGUI = new TrackListGUI();
@@ -75,14 +79,7 @@ public class MarioCraft extends JavaPlugin {
 
         protocolManager.addPacketListener(new EntityController(this, ListenerPriority.HIGHEST, PacketType.Play.Client.STEER_VEHICLE));
 
-        getServer().getPluginManager().registerEvents(new ControllerListeners(this), this);
-        getServer().getPluginManager().registerEvents(new WorldListeners(), this);
-        getServer().getPluginManager().registerEvents(new GUIListeners(this), this);
-        getServer().getPluginManager().registerEvents(new GameListeners(this), this);
-
-        getCommand("collision").setExecutor(new CollisionCommand(this));
-        getCommand("start").setExecutor(new StartCommand(this));
-        getCommand("reloadtracks").setExecutor(new TrackCommand(this));
+        tracksManager.loadTracks();
 
         gameState = GameState.PRE_GAME;
     }

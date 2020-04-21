@@ -38,7 +38,7 @@ public class GUIListeners implements Listener {
 
         }else if(e.getInventory().getHolder().equals(instance.getTrackListGUI())){
 
-            instance.getTracksManager().getTTR().add(instance.getTracksManager().getTrackFromName(s.getItemMeta().getDisplayName()));
+            instance.getTracksManager().getTTR().add(instance.getTracksManager().getTrackFromName(s.getItemMeta().getDisplayName().replace(" ", "_")));
 
         }
 

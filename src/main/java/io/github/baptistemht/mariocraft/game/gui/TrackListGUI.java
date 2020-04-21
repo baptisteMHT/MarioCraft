@@ -18,8 +18,6 @@ public class TrackListGUI implements InventoryHolder {
 
     public TrackListGUI(){
         inv = Bukkit.createInventory(this, 45,"Choose track");
-
-        initializeItems();
     }
 
     @Override
@@ -29,8 +27,9 @@ public class TrackListGUI implements InventoryHolder {
 
     public void initializeItems() {
         inv.clear();
+
         for(Track t : MarioCraft.getInstance().getTracksManager().getTracks()){
-            inv.addItem(createGuiItem(t.getSelector(), t.getName()));
+            inv.addItem(createGuiItem(t.getSelector(), t.getName().replace("_", " ")));
         }
     }
 
