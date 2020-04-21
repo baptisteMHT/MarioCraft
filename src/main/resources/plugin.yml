@@ -11,3 +11,7 @@ commands:
   start:
     description: Start game.
     usage: /start
+  reloadtracks:
+    description: Reload tracks.
+    usage: /tracks
+    aliases: rt

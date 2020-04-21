@@ -6,11 +6,10 @@ import io.github.baptistemht.mariocraft.game.GameState;
 import io.github.baptistemht.mariocraft.game.gui.DifficultySelectorGUI;
 import io.github.baptistemht.mariocraft.game.gui.VehicleSelectorGUI;
 import io.github.baptistemht.mariocraft.game.player.PlayerState;
-import io.github.baptistemht.mariocraft.util.BoxUtils;
 import io.github.baptistemht.mariocraft.util.GameUtils;
 import io.github.baptistemht.mariocraft.util.LootUtils;
 import org.bukkit.GameMode;
-import org.bukkit.Location;
+import org.bukkit.Material;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
@@ -31,28 +30,48 @@ public class GameListeners implements Listener {
 
     @EventHandler
     public void onRightClick(PlayerInteractEvent e){
+        e.setCancelled(true);
+
         Action action = e.getAction();
-        ItemStack item = e.getItem();
+        ItemStack s = e.getItem();
         Player p = e.getPlayer();
 
         if(action == Action.RIGHT_CLICK_AIR || action == Action.RIGHT_CLICK_BLOCK){
 
-            if(item == null)return;
+            if(s == null)return;
 
-            if(item.getType() == BoxLoot.SQUID.getMaterial()){
-                LootUtils.squidExecutor(p);
+            if(s.getType() == Material.DIAMOND_SWORD){
+                instance.getDifficultySelectorGUI().openInventory(p);
+                return;
             }
 
-            p.updateInventory();
+            if(s.getType() == Material.BEE_SPAWN_EGG){
+                instance.getDifficultySelectorGUI().openInventory(p);
+                return;
+            }
 
-            new BukkitRunnable() {
-                @Override
-                public void run() {
-                    p.getInventory().remove(item);
-                }
-            }.runTaskLater(instance, 1L);
+            if(BoxLoot.getLootFromName(s.getItemMeta().getDisplayName()) != null){
+
+                LootUtils.executeLootAction(p, BoxLoot.getLootFromName(s.getItemMeta().getDisplayName()));
+
+                new BukkitRunnable() {
+                    @Override
+                    public void run() {
+                        p.getInventory().remove(s);
+                        p.updateInventory();
+                    }
+                }.runTaskLater(instance, 1L);
+
+            }
+
         }
     }
+
+
+
+    /***************************LOGIN EVENTS******************************************/
+
+
 
     @EventHandler
     public void onLogin(PlayerLoginEvent e){

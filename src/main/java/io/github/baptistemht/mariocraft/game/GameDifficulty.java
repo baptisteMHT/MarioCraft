@@ -4,10 +4,10 @@ import org.bukkit.Material;
 
 public enum GameDifficulty {
 
-    EASY("50CC", 0.5, Material.LEATHER_CHESTPLATE),
-    NORMAL("100CC", 0.65, Material.IRON_CHESTPLATE),
-    HARD("150CC", 0.8, Material.GOLDEN_CHESTPLATE),
-    EXTREME("200CC", 1, Material.DIAMOND_CHESTPLATE);
+    EASY("50CC", 0.5, Material.IRON_BLOCK),
+    NORMAL("100CC", 0.65, Material.GOLD_BLOCK),
+    HARD("150CC", 0.8, Material.DIAMOND_BLOCK),
+    EXTREME("200CC", 1, Material.EMERALD);
 
     final String name;
     final double multiplier;

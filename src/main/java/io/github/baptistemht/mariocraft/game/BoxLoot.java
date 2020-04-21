@@ -15,7 +15,6 @@ public enum BoxLoot {
     BoxLoot(String name, Material material) {
         this.name = name;
         this.material = material;
-
     }
 
     public String getName() {
@@ -24,5 +23,12 @@ public enum BoxLoot {
 
     public Material getMaterial() {
         return material;
+    }
+
+    public static BoxLoot getLootFromName(String name){
+        for(BoxLoot l : BoxLoot.values()){
+            if(l.getName().equalsIgnoreCase(name))return l;
+        }
+        return null;
     }
 }

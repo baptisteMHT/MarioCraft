@@ -12,14 +12,13 @@ public class TrackUtils {
             case GRAVEL:
             case DIRT:
             case GREEN_CONCRETE:
-                return 0.90;
+                return 0.92;
 
-            case BLACK_CONCRETE:
-            case LIGHT_GRAY_CONCRETE:
-            case GRAY_CONCRETE:
-            case YELLOW_CONCRETE:
-                return 0.95;
+            case GOLD_BLOCK:
+                return 1.5;
+
             default: return 1.0;
+
         }
 
     }

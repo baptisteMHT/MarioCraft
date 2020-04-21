@@ -1,6 +1,7 @@
 package io.github.baptistemht.mariocraft.game.gui;
 
-import io.github.baptistemht.mariocraft.game.GameDifficulty;
+import io.github.baptistemht.mariocraft.MarioCraft;
+import io.github.baptistemht.mariocraft.track.Track;
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.entity.HumanEntity;
@@ -11,12 +12,12 @@ import org.bukkit.inventory.meta.ItemMeta;
 
 import java.util.Arrays;
 
-public class DifficultySelectorGUI implements InventoryHolder {
+public class TrackListGUI implements InventoryHolder {
 
     private final Inventory inv;
 
-    public DifficultySelectorGUI(){
-        inv = Bukkit.createInventory(this, 9,"Choose difficulty");
+    public TrackListGUI(){
+        inv = Bukkit.createInventory(this, 45,"Choose track");
 
         initializeItems();
     }
@@ -27,8 +28,9 @@ public class DifficultySelectorGUI implements InventoryHolder {
     }
 
     public void initializeItems() {
-        for(GameDifficulty d : GameDifficulty.values()){
-            inv.addItem(createGuiItem(d.getSelector(), d.getName()));
+        inv.clear();
+        for(Track t : MarioCraft.getInstance().getTracksManager().getTracks()){
+            inv.addItem(createGuiItem(t.getSelector(), t.getName()));
         }
     }
 
@@ -48,5 +50,4 @@ public class DifficultySelectorGUI implements InventoryHolder {
     public void openInventory(final HumanEntity ent) {
         ent.openInventory(inv);
     }
-
 }

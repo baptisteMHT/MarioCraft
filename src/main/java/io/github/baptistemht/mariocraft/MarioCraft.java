@@ -6,23 +6,25 @@ import com.comphenix.protocol.ProtocolManager;
 import com.comphenix.protocol.events.ListenerPriority;
 import io.github.baptistemht.mariocraft.command.CollisionCommand;
 import io.github.baptistemht.mariocraft.command.StartCommand;
+import io.github.baptistemht.mariocraft.command.TrackCommand;
 import io.github.baptistemht.mariocraft.controller.EntityController;
 import io.github.baptistemht.mariocraft.controller.listener.ControllerListeners;
 import io.github.baptistemht.mariocraft.game.GameDifficulty;
 import io.github.baptistemht.mariocraft.game.GameState;
 import io.github.baptistemht.mariocraft.game.gui.DifficultySelectorGUI;
 import io.github.baptistemht.mariocraft.game.gui.GUIListeners;
+import io.github.baptistemht.mariocraft.game.gui.TrackListGUI;
+import io.github.baptistemht.mariocraft.game.gui.VehicleSelectorGUI;
 import io.github.baptistemht.mariocraft.game.listener.GameListeners;
 import io.github.baptistemht.mariocraft.game.player.PlayerManager;
-import io.github.baptistemht.mariocraft.game.player.PlayerState;
 import io.github.baptistemht.mariocraft.task.DifficultyVoteTask;
+import io.github.baptistemht.mariocraft.track.TracksManager;
 import io.github.baptistemht.mariocraft.util.BoxUtils;
 import io.github.baptistemht.mariocraft.world.WorldListeners;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.entity.Entity;
-import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.plugin.java.JavaPlugin;
@@ -41,8 +43,13 @@ public class MarioCraft extends JavaPlugin {
     private List<Entity> boxes;
     private List<GameDifficulty> votes;
 
+    private DifficultySelectorGUI difficultySelectorGUI;
+    private VehicleSelectorGUI vehicleSelectorGUI;
+    private TrackListGUI trackListGUI;
+
     private ProtocolManager protocolManager;
     private PlayerManager playerManager;
+    private TracksManager tracksManager;
 
     private static MarioCraft instance;
 
@@ -58,18 +65,24 @@ public class MarioCraft extends JavaPlugin {
         votes = new ArrayList<>();
         boxes = new ArrayList<>();
 
+        difficultySelectorGUI = new DifficultySelectorGUI();
+        vehicleSelectorGUI = new VehicleSelectorGUI();
+        trackListGUI = new TrackListGUI();
+
         protocolManager = ProtocolLibrary.getProtocolManager();
         playerManager = new PlayerManager(this, 8, 12);
+        tracksManager = new TracksManager(this);
 
         protocolManager.addPacketListener(new EntityController(this, ListenerPriority.HIGHEST, PacketType.Play.Client.STEER_VEHICLE));
 
         getServer().getPluginManager().registerEvents(new ControllerListeners(this), this);
         getServer().getPluginManager().registerEvents(new WorldListeners(), this);
-        getServer().getPluginManager().registerEvents(new GUIListeners(), this);
+        getServer().getPluginManager().registerEvents(new GUIListeners(this), this);
         getServer().getPluginManager().registerEvents(new GameListeners(this), this);
 
         getCommand("collision").setExecutor(new CollisionCommand(this));
         getCommand("start").setExecutor(new StartCommand(this));
+        getCommand("reloadtracks").setExecutor(new TrackCommand(this));
 
         gameState = GameState.PRE_GAME;
     }
@@ -81,9 +94,17 @@ public class MarioCraft extends JavaPlugin {
 
 
     public void setupSequence(){
+        gameState = GameState.GAME;
+
+        ItemStack s = new ItemStack(Material.DIAMOND_SWORD);
+        ItemMeta m = s.getItemMeta();
+        m.setDisplayName("Difficulty");
+        s.setItemMeta(m);
+
         new DifficultyVoteTask(this);
+
         for(UUID id : playerManager.getPlayersData().keySet()){
-            new DifficultySelectorGUI().openInventory(Bukkit.getPlayer(id));
+            Bukkit.getPlayer(id).getInventory().addItem(s);
         }
     }
 
@@ -134,8 +155,24 @@ public class MarioCraft extends JavaPlugin {
     }
 
 
+    public DifficultySelectorGUI getDifficultySelectorGUI() {
+        return difficultySelectorGUI;
+    }
+
+    public VehicleSelectorGUI getVehicleSelectorGUI() {
+        return vehicleSelectorGUI;
+    }
+
+    public TrackListGUI getTrackListGUI() {
+        return trackListGUI;
+    }
+
     public PlayerManager getPlayerManager() {
         return playerManager;
+    }
+
+    public TracksManager getTracksManager() {
+        return tracksManager;
     }
 
     public ProtocolManager getProtocolManager() {

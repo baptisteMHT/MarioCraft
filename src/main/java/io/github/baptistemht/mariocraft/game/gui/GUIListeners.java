@@ -12,33 +12,43 @@ import org.bukkit.inventory.ItemStack;
 
 public class GUIListeners implements Listener {
 
+    private final MarioCraft instance;
+
+    public GUIListeners(MarioCraft instance){
+        this.instance = instance;
+    }
+
     @EventHandler
     public void onInventoryClick(final InventoryClickEvent e) {
         e.setCancelled(true);
-        if(e.getInventory().contains(Material.LEATHER_CHESTPLATE)){
 
-            final ItemStack clickedItem = e.getCurrentItem();
+        final ItemStack s = e.getCurrentItem();
+        final Player p = (Player) e.getWhoClicked();
 
-            if (clickedItem == null || clickedItem.getType() == Material.AIR) return;
+        if (s == null || s.getType() == Material.AIR) return;
 
-            final Player p = (Player) e.getWhoClicked();
-
-            p.closeInventory();
-            p.sendMessage("You chose: " + clickedItem.getItemMeta().getDisplayName());
-            MarioCraft.getInstance().getVotes().add(GameDifficulty.getDifficultyFromMaterial(clickedItem.getType()));
-
-        }else if (e.getInventory().contains(Material.TURTLE_SPAWN_EGG)){
-
-            final ItemStack clickedItem = e.getCurrentItem();
-
-            if (clickedItem == null || clickedItem.getType() == Material.AIR) return;
-
-            final Player p = (Player) e.getWhoClicked();
+        if(e.getInventory().getHolder().equals(instance.getDifficultySelectorGUI())){
 
             p.closeInventory();
-            p.sendMessage("You chose: " + clickedItem.getItemMeta().getDisplayName());
-            Vehicle.getVehicleFromName(clickedItem.getItemMeta().getDisplayName()).summon(p);
+            p.sendMessage("You chose: " + s.getItemMeta().getDisplayName());
+            p.getInventory().remove(p.getInventory().getItemInMainHand());
+            p.updateInventory();
 
+            MarioCraft.getInstance().getVotes().add(GameDifficulty.getDifficultyFromMaterial(s.getType()));
+
+        }else if (e.getInventory().getHolder().equals(instance.getVehicleSelectorGUI())){
+
+            p.closeInventory();
+            p.sendMessage("You chose: " + s.getItemMeta().getDisplayName());
+            p.getInventory().remove(p.getInventory().getItemInMainHand());
+            p.updateInventory();
+
+            instance.getPlayerManager().getDataFromPlayer(p).setVehicle(Vehicle.getVehicleFromName(s.getItemMeta().getDisplayName()));
+
+        }else if(e.getInventory().getHolder().equals(instance.getTrackListGUI())){
+
+            p.closeInventory();
+            p.sendMessage("You chose: " + s.getItemMeta().getDisplayName());
         }
     }
 }

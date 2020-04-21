@@ -28,12 +28,17 @@ public class DifficultyVoteTask {
                 }
 
                 for(Player p : Bukkit.getOnlinePlayers()){
-                    p.setTotalExperience(i);
+                    p.setExp(i);
                 }
 
                 if(MarioCraft.getInstance().getVotes().size() >= MarioCraft.getInstance().getPlayerManager().getPlayersData().size() || i == 0){
 
                     calculateDiff();
+
+                    for(Player p : Bukkit.getOnlinePlayers()){
+                        p.getInventory().clear();
+                        p.updateInventory();
+                    }
 
                     this.cancel();
                 }
@@ -45,10 +50,7 @@ public class DifficultyVoteTask {
 
     private void calculateDiff(){
 
-        int a = 0;
-        int b = 0;
-        int c = 0;
-        int d = 0;
+        int a = 0, b = 0, c = 0, d = 0;
 
         for(GameDifficulty diff : instance.getVotes()){
             switch (diff){
@@ -79,7 +81,7 @@ public class DifficultyVoteTask {
             instance.setDifficulty(GameDifficulty.NORMAL);
         }
 
-
+        new VehicleSelectorTask(instance);
 
         Bukkit.broadcastMessage("[MarioCraft] Vote closed! Difficulty set to " + instance.getDifficulty().getName());
     }
