@@ -122,6 +122,7 @@ public class GameListeners implements Listener {
         }
 
         e.getPlayer().getInventory().clear();
+        if(e.getPlayer().isInsideVehicle()) e.getPlayer().leaveVehicle();
     }
 
     @EventHandler

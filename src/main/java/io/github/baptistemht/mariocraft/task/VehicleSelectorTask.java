@@ -52,12 +52,7 @@ public class VehicleSelectorTask {
                         p.updateInventory();
                     }
 
-                    new BukkitRunnable() {
-                        @Override
-                        public void run() {
-                            new TrackSelectionTask(instance);
-                        }
-                    }.runTaskLater(instance, 60L);
+                    new TrackSelectionTask(instance);
 
                     this.cancel();
 

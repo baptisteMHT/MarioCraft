@@ -4,6 +4,7 @@ import io.github.baptistemht.mariocraft.MarioCraft;
 import org.bukkit.Material;
 import org.bukkit.World;
 import org.bukkit.WorldCreator;
+import org.bukkit.scheduler.BukkitRunnable;
 
 import java.io.File;
 import java.util.ArrayList;
@@ -33,7 +34,7 @@ public class TracksManager {
         for(World w : instance.getServer().getWorlds()){
             wNames.add(w.getName());
             if(w.getName().contains("track")){
-                tracks.add(new Track(w.getName().split("-")[1], w, w.getSpawnLocation(), Material.valueOf(w.getName().split("-")[2].toUpperCase())));
+                tracks.add(new Track(w.getName().split("-")[1].replace("_", " "), w, w.getSpawnLocation(), Material.valueOf(w.getName().split("-")[2].toUpperCase()), w.getName().split("-")[3]));
                 instance.getLogger().log(Level.INFO, "[TrackFinder] Track " + w.getName().split("-")[1] + " registered.");
             }
         }
@@ -49,7 +50,7 @@ public class TracksManager {
                     World w = instance.getServer().createWorld(new WorldCreator(f.getName()));
                     Material m = Material.valueOf(s[2].toUpperCase());
 
-                    tracks.add(new Track(s[1], w, w.getSpawnLocation(), m));
+                    tracks.add(new Track(s[1].replace("_", " "), w, w.getSpawnLocation(), m, s[3]));
                     instance.getLogger().log(Level.INFO, "[TrackFinder] Track " + s[1] + " registered.");
 
                 }

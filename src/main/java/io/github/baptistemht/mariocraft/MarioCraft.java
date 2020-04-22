@@ -86,7 +86,7 @@ public class MarioCraft extends JavaPlugin {
 
     @Override
     public void onDisable() {
-        BoxUtils.resetBoxes();
+        BoxUtils.resetBoxesFromAllTracks();
     }
 
 

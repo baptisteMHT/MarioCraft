@@ -91,11 +91,6 @@ public class DifficultyVoteTask {
 
         Bukkit.broadcastMessage("[MarioCraft] Vote closed! Difficulty set to " + instance.getDifficulty().getName());
 
-        new BukkitRunnable() {
-            @Override
-            public void run() {
-                new VehicleSelectorTask(instance);
-            }
-        }.runTaskLater(instance, 60L);
+        new VehicleSelectorTask(instance);
     }
 }

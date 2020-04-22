@@ -29,7 +29,7 @@ public class TrackListGUI implements InventoryHolder {
         inv.clear();
 
         for(Track t : MarioCraft.getInstance().getTracksManager().getTracks()){
-            inv.addItem(createGuiItem(t.getSelector(), t.getName().replace("_", " ")));
+            if(t.isReady()) inv.addItem(createGuiItem(t.getSelector(), t.getName().replace("_", " ")));
         }
     }
 
