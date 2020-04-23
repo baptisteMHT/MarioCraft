@@ -80,7 +80,7 @@ public class EntityController extends PacketAdapter {
                             lastBox.remove(p);
                             BoxUtils.generateBox(new Location(p.getWorld(), x, y, z));
                         }
-                    }.runTaskLater(MarioCraft.getInstance(), 120L);
+                    }.runTaskLater(MarioCraft.getInstance(), 100L);
 
                     BoxUtils.loot(p);
                 }
@@ -88,13 +88,12 @@ public class EntityController extends PacketAdapter {
 
             //COLLISION DETECTION (NOT TESTED YET BUT IT'LL BE WEIRD)
             if(instance.isCollision()){
-                for(UUID id : instance.getPlayerManager().getData().keySet()){
+                for(UUID id : instance.getPlayerManager().getPlayersData().keySet()){
+
                     Player ps = Bukkit.getPlayer(id);
 
-                    if(!Bukkit.getOnlinePlayers().contains(ps))return;
-                    if(Vehicle.getVehicleFromPlayer(ps) == null || ps.getUniqueId().toString().equalsIgnoreCase(p.getUniqueId().toString()))return;
-
                     if(ps.getLocation().getBlockX() == l.getBlockX() && ps.getLocation().getBlockY() == l.getBlockY() && ps.getLocation().getBlockZ() == l.getBlockZ()){
+
                         if(Vehicle.getVehicleFromPlayer(p).getWeight() > Vehicle.getVehicleFromPlayer(ps).getWeight()){
                             Vector vector = new Vector(-ps.getLocation().getDirection().getX()*0.1, ps.getLocation().getDirection().getY(), -ps.getLocation().getDirection().getZ()*0.1);
                             ps.setVelocity(vector);
@@ -106,8 +105,9 @@ public class EntityController extends PacketAdapter {
                             p.setVelocity(vector);
                             ps.setVelocity(vector);
                         }
-                    }
 
+
+                    }
                 }
 
             }

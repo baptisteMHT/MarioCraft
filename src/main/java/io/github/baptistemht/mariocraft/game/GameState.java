@@ -4,7 +4,8 @@ public enum GameState {
 
     INIT,
     PRE_GAME,
-    GAME,
+    SELECTION,
+    RACING,
     POST_GAME
 
 }

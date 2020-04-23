@@ -41,17 +41,12 @@ public class BoxUtils {
 
     public static void resetBoxesFromAllTracks(){
         for(Entity e : MarioCraft.getInstance().getBoxes()){
-            e.remove();
-        }
-        MarioCraft.getInstance().getBoxes().clear();
-    }
-
-    public static void clearBoxesFromWorld(World w){
-        for(Entity e : w.getEntities()){
-            if(e.getType() == EntityType.ENDER_CRYSTAL){
+            if(e.getWorld().getName().contains("track")){
+                e.getWorld().spawnEntity(e.getLocation().add(0, 1, 0), EntityType.ARMOR_STAND);
                 e.remove();
             }
         }
+        MarioCraft.getInstance().getBoxes().clear();
     }
 
     public static boolean delBox(int x, int z){

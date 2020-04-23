@@ -1,5 +1,8 @@
 package io.github.baptistemht.mariocraft.world;
 
+import io.github.baptistemht.mariocraft.MarioCraft;
+import org.bukkit.ChunkSnapshot;
+import org.bukkit.Material;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
@@ -7,6 +10,8 @@ import org.bukkit.event.block.BlockBreakEvent;
 import org.bukkit.event.block.BlockBurnEvent;
 import org.bukkit.event.block.BlockPlaceEvent;
 import org.bukkit.event.entity.EntityDamageEvent;
+import org.bukkit.event.world.ChunkLoadEvent;
+import org.bukkit.event.world.ChunkUnloadEvent;
 
 public class WorldListeners implements Listener {
 

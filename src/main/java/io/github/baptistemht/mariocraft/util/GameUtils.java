@@ -49,7 +49,7 @@ public class GameUtils {
 
         List<Location> positions = new ArrayList<>();
 
-        positions.add(t.getGrid());
+        positions.add(t.getGrid().add(0, 10, 0));
 
         for(int i = 0 ; i!=(pm.getPlayersData().size() -1) ; i++){
 
@@ -57,7 +57,7 @@ public class GameUtils {
             int y = positions.get(i).getBlockY();
             int z = positions.get(i).getBlockZ() - 3;
 
-            if(i == 3 || i == 6){
+            if(i == 2 || i == 5){
                 z = z + 6;
             }
 

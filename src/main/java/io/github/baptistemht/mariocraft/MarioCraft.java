@@ -91,7 +91,7 @@ public class MarioCraft extends JavaPlugin {
 
 
     public void setupSequence(){
-        gameState = GameState.GAME;
+        gameState = GameState.SELECTION;
 
         new DifficultyVoteTask(this);
     }

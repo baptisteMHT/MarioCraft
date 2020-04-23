@@ -41,12 +41,12 @@ public class DifficultyVoteTask {
 
                 if(MarioCraft.getInstance().getVotes().size() >= MarioCraft.getInstance().getPlayerManager().getPlayersData().size() || i == 0){
 
-                    calculateDiff();
-
                     for(Player p : Bukkit.getOnlinePlayers()){
                         p.getInventory().clear();
                         p.updateInventory();
                     }
+
+                    calculateDiff();
 
                     this.cancel();
                 }

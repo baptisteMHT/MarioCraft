@@ -2,6 +2,7 @@ package io.github.baptistemht.mariocraft.task;
 
 import io.github.baptistemht.mariocraft.MarioCraft;
 import org.bukkit.Bukkit;
+import org.bukkit.Chunk;
 import org.bukkit.Material;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;

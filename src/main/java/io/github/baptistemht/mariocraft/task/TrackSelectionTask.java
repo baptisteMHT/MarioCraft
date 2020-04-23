@@ -1,6 +1,7 @@
 package io.github.baptistemht.mariocraft.task;
 
 import io.github.baptistemht.mariocraft.MarioCraft;
+import io.github.baptistemht.mariocraft.game.GameState;
 import io.github.baptistemht.mariocraft.track.Track;
 import io.github.baptistemht.mariocraft.util.GameUtils;
 import org.bukkit.Bukkit;
@@ -44,6 +45,8 @@ public class TrackSelectionTask {
 
                     Bukkit.broadcastMessage("[MarioCraft] Everyone chose a track! Selected track: " + t.getName().replace("_", " "));
 
+                    instance.getTracksManager().getTTR().clear();
+
                     for(Player p : Bukkit.getOnlinePlayers()){
                         p.getInventory().clear();
                         p.updateInventory();
@@ -56,6 +59,7 @@ public class TrackSelectionTask {
                             for(UUID id : instance.getPlayerManager().getPlayersData().keySet()){
                                 instance.getPlayerManager().getPlayerData(id).getVehicle().summon(Bukkit.getPlayer(id));
                             }
+                            instance.setGameState(GameState.RACING);
                         }
                     }.runTaskLater(instance, 60L);
 

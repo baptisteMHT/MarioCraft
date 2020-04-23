@@ -3,8 +3,6 @@ package io.github.baptistemht.mariocraft.game.listener;
 import io.github.baptistemht.mariocraft.MarioCraft;
 import io.github.baptistemht.mariocraft.game.BoxLoot;
 import io.github.baptistemht.mariocraft.game.GameState;
-import io.github.baptistemht.mariocraft.game.gui.DifficultySelectorGUI;
-import io.github.baptistemht.mariocraft.game.gui.VehicleSelectorGUI;
 import io.github.baptistemht.mariocraft.game.player.PlayerState;
 import io.github.baptistemht.mariocraft.util.GameUtils;
 import io.github.baptistemht.mariocraft.util.LootUtils;
@@ -93,7 +91,8 @@ public class GameListeners implements Listener {
                     e.disallow(PlayerLoginEvent.Result.KICK_OTHER, "Server full.");
                 }
                 break;
-            case GAME:
+            case SELECTION:
+            case RACING:
                 if(!instance.getPlayerManager().getPlayersData().containsKey(e.getPlayer().getUniqueId())){
                     if(instance.getPlayerManager().getSpecsData().size() < instance.getPlayerManager().getSpecLimit()){
                         instance.getPlayerManager().insertPlayerData(e.getPlayer().getUniqueId(), PlayerState.SPECTATOR);
@@ -108,12 +107,10 @@ public class GameListeners implements Listener {
     @EventHandler
     public void onJoin(PlayerJoinEvent e){
         if(instance.getPlayerManager().getPlayerData(e.getPlayer().getUniqueId()).getState() == PlayerState.PLAYER){
-            if(instance.getGameState() == GameState.GAME)return;
+            if(instance.getGameState() == GameState.RACING || instance.getGameState() == GameState.SELECTION)return;
             e.getPlayer().setGameMode(GameMode.SURVIVAL);
             e.getPlayer().setTotalExperience(0);
             GameUtils.tpPlayerToLobby(e.getPlayer());
-
-            instance.getLogger().log(Level.INFO, "STATE: " + instance.getPlayerManager().getPlayerData(e.getPlayer().getUniqueId()).getState());
 
             e.setJoinMessage("[MarioCraft] " + e.getPlayer().getName() + " joined the game! [" + instance.getPlayerManager().getPlayersData().size() + "/" + instance.getPlayerManager().getPlayerLimit()+ "]");
         } else{
@@ -132,7 +129,8 @@ public class GameListeners implements Listener {
             case POST_GAME:
                 instance.getPlayerManager().getData().remove(e.getPlayer().getUniqueId());
                 break;
-            case GAME:
+            case SELECTION:
+            case RACING:
                 if(instance.getPlayerManager().getPlayerData(e.getPlayer().getUniqueId()).getState() == PlayerState.SPECTATOR){
                     instance.getPlayerManager().getData().remove(e.getPlayer().getUniqueId());
                 }
