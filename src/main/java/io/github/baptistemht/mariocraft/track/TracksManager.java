@@ -31,8 +31,8 @@ public class TracksManager {
         long t0 = System.currentTimeMillis();
         instance.getLogger().log(Level.INFO, "[TrackFinder] Looking for tracks...");
 
-        tracks.clear();
         BoxUtils.resetBoxesFromAllTracks();
+        tracks.clear();
 
         List<String> wNames = new ArrayList<>();
 

@@ -42,7 +42,7 @@ public class BoxUtils {
     public static void resetBoxesFromAllTracks(){
         for(Entity e : MarioCraft.getInstance().getBoxes()){
             if(e.getWorld().getName().contains("track")){
-                e.getWorld().spawnEntity(e.getLocation().add(0, 1, 0), EntityType.ARMOR_STAND);
+                e.getWorld().spawnEntity(e.getLocation(), EntityType.ARMOR_STAND);
                 e.remove();
             }
         }

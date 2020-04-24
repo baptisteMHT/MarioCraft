@@ -63,7 +63,7 @@ public class EntityController extends PacketAdapter {
         for (Block b : BoxUtils.getNearbyBlocks(l, 1)){
 
             int x = b.getX();
-            int y = b.getY() + 2;
+            int y = b.getY();
             int z = b.getZ();
 
             Entity box = BoxUtils.getBox(x, z);
@@ -78,7 +78,7 @@ public class EntityController extends PacketAdapter {
                         @Override
                         public void run() {
                             lastBox.remove(p);
-                            BoxUtils.generateBox(new Location(p.getWorld(), x, y, z));
+                            BoxUtils.generateBox(new Location(p.getWorld(), x, (y+1), z));
                         }
                     }.runTaskLater(MarioCraft.getInstance(), 100L);
 

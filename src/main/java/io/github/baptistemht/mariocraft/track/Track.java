@@ -44,7 +44,7 @@ public class Track {
 
                 for(Entity e : world.getEntities()){
                     if(e.getType() == EntityType.ARMOR_STAND || e.getType() == EntityType.ENDER_CRYSTAL){
-                        boxes.add(e.getLocation().add(0, 1, 0));
+                        boxes.add(e.getLocation());
                         MarioCraft.getInstance().getLogger().log(Level.INFO, "[TrackLoader:" + name + "] Box found. (" + e.getLocation().getBlockX() + ";" + e.getLocation().getBlockY() + ";" + e.getLocation().getBlockZ() + ")");
                         i++;
                     }
