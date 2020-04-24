@@ -49,7 +49,7 @@ public class GameUtils {
 
         List<Location> positions = new ArrayList<>();
 
-        positions.add(t.getGrid().add(0, 10, 0));
+        positions.add(t.getGrid());
 
         for(int i = 0 ; i!=(pm.getPlayersData().size() -1) ; i++){
 
@@ -69,7 +69,7 @@ public class GameUtils {
         for(UUID id : pm.getData().keySet()){
             PlayerData data = pm.getPlayerData(id);
             if(data.getState() == PlayerState.SPECTATOR){
-                Bukkit.getPlayer(id).teleport(positions.get(0));
+                Bukkit.getPlayer(id).teleport(positions.get(0).add(0, 10, 0));
             }else{
                 Bukkit.getPlayer(id).teleport(positions.get(i));
                 i++;
