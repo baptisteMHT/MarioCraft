@@ -1,6 +1,7 @@
 package io.github.baptistemht.mariocraft.command;
 
 import io.github.baptistemht.mariocraft.MarioCraft;
+import io.github.baptistemht.mariocraft.game.GameState;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
@@ -16,7 +17,11 @@ public class StartCommand implements CommandExecutor {
     @Override
     public boolean onCommand(CommandSender commandSender, Command command, String s, String[] strings) {
 
-        instance.setupSequence();
+        if(instance.getGameState() == GameState.PRE_GAME){
+            instance.setupSequence();
+        }else{
+            commandSender.sendMessage("Start sequence already initiated.");
+        }
 
         return true;
     }

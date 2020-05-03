@@ -39,7 +39,7 @@ public class TracksManager {
         for (World w : instance.getServer().getWorlds()) {
             wNames.add(w.getName());
             if (w.getName().contains("track")) {
-                tracks.add(new Track(w.getName().split("-")[1].replace("_", " "), w, w.getSpawnLocation(), Material.valueOf(w.getName().split("-")[2].toUpperCase())));
+                tracks.add(new Track(w.getName().split("-")[1].replace("_", " "), w, w.getSpawnLocation(), Material.valueOf(w.getName().split("-")[2].toUpperCase()), Integer.parseInt(w.getName().split("-")[3])));
                 instance.getLogger().log(Level.INFO, "[TrackFinder] Track " + w.getName().split("-")[1] + " registered.");
             }
         }
@@ -55,7 +55,7 @@ public class TracksManager {
                     final World w = instance.getServer().createWorld(new WorldCreator(f.getName()));
                     final Material m = Material.valueOf(s[2].toUpperCase());
 
-                    tracks.add(new Track(s[1].replace("_", " "), w, w.getSpawnLocation(), m));
+                    tracks.add(new Track(s[1].replace("_", " "), w, w.getSpawnLocation(), m, Integer.parseInt(s[3])));
                     instance.getLogger().log(Level.INFO, "[TrackFinder] Track " + s[1] + " registered.");
 
                 }

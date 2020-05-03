@@ -22,11 +22,11 @@ public class TrackSelectionTask {
     public TrackSelectionTask(MarioCraft instance){
         this.instance = instance;
 
-        Set<UUID> ids = instance.getPlayerManager().getPlayersData().keySet();
+        final Set<UUID> ids = instance.getPlayerManager().getPlayersData().keySet();
 
 
-        ItemStack s = new ItemStack(Material.MUSIC_DISC_WARD);
-        ItemMeta m = s.getItemMeta();
+        final ItemStack s = new ItemStack(Material.MUSIC_DISC_WARD);
+        final ItemMeta m = s.getItemMeta();
         m.setDisplayName("Track selector");
         s.setItemMeta(m);
 
@@ -41,7 +41,7 @@ public class TrackSelectionTask {
             public void run() {
                 if(instance.getTracksManager().getTTR().size() >= ids.size()){
 
-                    Track t = instance.getTracksManager().getTracks().get(new Random().nextInt(instance.getTracksManager().getTTR().size()));
+                    final Track t = instance.getTracksManager().getTracks().get(new Random().nextInt(instance.getTracksManager().getTTR().size()));
 
                     Bukkit.broadcastMessage("[MarioCraft] Everyone chose a track! Selected track: " + t.getName().replace("_", " "));
 
@@ -59,7 +59,8 @@ public class TrackSelectionTask {
                             for(UUID id : instance.getPlayerManager().getPlayersData().keySet()){
                                 instance.getPlayerManager().getPlayerData(id).getVehicle().summon(Bukkit.getPlayer(id));
                             }
-                            instance.setGameState(GameState.RACING);
+
+                            new RaceTask(instance, t);
                         }
                     }.runTaskLater(instance, 60L);
 

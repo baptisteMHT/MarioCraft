@@ -20,12 +20,14 @@ public class Track {
     private final Location grid;
     private final Material selector;
     private final List<Location> boxes;
+    private final int laps;
 
-    public Track(String name, World world, Location grid, Material selector){
+    public Track(String name, World world, Location grid, Material selector, int laps){
         this.name = name;
         this.world = world;
         this.grid = grid;
         this.selector = selector;
+        this.laps = laps;
 
         boxes = new ArrayList<>();
 
@@ -66,6 +68,10 @@ public class Track {
 
     }
 
+    public void reset(){
+
+    }
+
     public String getName() {
         return name;
     }
@@ -80,5 +86,9 @@ public class Track {
 
     public Material getSelector() {
         return selector;
+    }
+
+    public int getLaps() {
+        return laps;
     }
 }

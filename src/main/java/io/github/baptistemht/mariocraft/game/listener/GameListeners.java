@@ -136,5 +136,7 @@ public class GameListeners implements Listener {
                 }
                 break;
         }
+
+        e.getPlayer().leaveVehicle();
     }
 }

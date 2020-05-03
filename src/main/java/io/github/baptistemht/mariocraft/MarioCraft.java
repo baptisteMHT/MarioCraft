@@ -23,6 +23,7 @@ import io.github.baptistemht.mariocraft.util.BoxUtils;
 import io.github.baptistemht.mariocraft.world.WorldListeners;
 import org.bukkit.*;
 import org.bukkit.entity.Entity;
+import org.bukkit.inventory.Inventory;
 import org.bukkit.plugin.java.JavaPlugin;
 
 import java.util.ArrayList;
@@ -37,6 +38,7 @@ public class MarioCraft extends JavaPlugin {
 
     private List<Entity> boxes;
     private List<GameDifficulty> votes;
+    private int raceCount;
 
     private DifficultySelectorGUI difficultySelectorGUI;
     private VehicleSelectorGUI vehicleSelectorGUI;
@@ -57,8 +59,9 @@ public class MarioCraft extends JavaPlugin {
         collision = false;
         hub = new Location(getServer().getWorld("world"), getServer().getWorld("world").getSpawnLocation().getX(), getServer().getWorld("world").getSpawnLocation().getY(), getServer().getWorld("world").getSpawnLocation().getZ());
 
-        votes = new ArrayList<>();
         boxes = new ArrayList<>();
+        votes = new ArrayList<>();
+        raceCount = 3;
 
         difficultySelectorGUI = new DifficultySelectorGUI();
         vehicleSelectorGUI = new VehicleSelectorGUI();
@@ -140,6 +143,16 @@ public class MarioCraft extends JavaPlugin {
 
     public List<GameDifficulty> getVotes() {
         return votes;
+    }
+
+
+    public int getRaceCount() {
+        return raceCount;
+    }
+
+    public int updateRaceCount(){
+        raceCount  = raceCount--;
+        return raceCount;
     }
 
 

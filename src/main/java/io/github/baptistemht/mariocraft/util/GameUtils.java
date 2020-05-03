@@ -23,6 +23,7 @@ public class GameUtils {
     public static boolean tpAllToLobby(){
         Location l = MarioCraft.getInstance().getHub();
         for(Player p : Bukkit.getOnlinePlayers()){
+            p.leaveVehicle();
             p.teleport(l);
         }
         return true;
