@@ -2,11 +2,8 @@ package io.github.baptistemht.mariocraft;
 
 import com.comphenix.protocol.PacketType;
 import com.comphenix.protocol.ProtocolLibrary;
-import com.comphenix.protocol.ProtocolManager;
 import com.comphenix.protocol.events.ListenerPriority;
-import io.github.baptistemht.mariocraft.command.CollisionCommand;
 import io.github.baptistemht.mariocraft.command.StartCommand;
-import io.github.baptistemht.mariocraft.command.TrackCommand;
 import io.github.baptistemht.mariocraft.controller.EntityController;
 import io.github.baptistemht.mariocraft.controller.listener.ControllerListeners;
 import io.github.baptistemht.mariocraft.game.GameDifficulty;
@@ -23,7 +20,6 @@ import io.github.baptistemht.mariocraft.util.BoxUtils;
 import io.github.baptistemht.mariocraft.world.WorldListeners;
 import org.bukkit.*;
 import org.bukkit.entity.Entity;
-import org.bukkit.inventory.Inventory;
 import org.bukkit.plugin.java.JavaPlugin;
 
 import java.util.ArrayList;
@@ -44,7 +40,6 @@ public class MarioCraft extends JavaPlugin {
     private VehicleSelectorGUI vehicleSelectorGUI;
     private TrackListGUI trackListGUI;
 
-    private ProtocolManager protocolManager;
     private PlayerManager playerManager;
     private TracksManager tracksManager;
 
@@ -67,20 +62,17 @@ public class MarioCraft extends JavaPlugin {
         vehicleSelectorGUI = new VehicleSelectorGUI();
         trackListGUI = new TrackListGUI();
 
-        protocolManager = ProtocolLibrary.getProtocolManager();
         playerManager = new PlayerManager(this, 9, 11);
         tracksManager = new TracksManager(this);
 
-        protocolManager.addPacketListener(new EntityController(this, ListenerPriority.HIGHEST, PacketType.Play.Client.STEER_VEHICLE));
+        ProtocolLibrary.getProtocolManager().addPacketListener(new EntityController(this, ListenerPriority.HIGHEST, PacketType.Play.Client.STEER_VEHICLE));
 
-        getServer().getPluginManager().registerEvents(new ControllerListeners(this), this);
+        getServer().getPluginManager().registerEvents(new ControllerListeners(), this);
         getServer().getPluginManager().registerEvents(new WorldListeners(), this);
         getServer().getPluginManager().registerEvents(new GUIListeners(this), this);
         getServer().getPluginManager().registerEvents(new GameListeners(this), this);
 
-        getCommand("collision").setExecutor(new CollisionCommand(this));
         getCommand("start").setExecutor(new StartCommand(this));
-        getCommand("reloadtracks").setExecutor(new TrackCommand(this));
 
         tracksManager.loadTracks();
 
@@ -136,10 +128,6 @@ public class MarioCraft extends JavaPlugin {
         return hub;
     }
 
-    public void setHub(Location hub) {
-        this.hub = hub;
-    }
-
 
     public List<GameDifficulty> getVotes() {
         return votes;
@@ -175,10 +163,6 @@ public class MarioCraft extends JavaPlugin {
 
     public TracksManager getTracksManager() {
         return tracksManager;
-    }
-
-    public ProtocolManager getProtocolManager() {
-        return protocolManager;
     }
 
 

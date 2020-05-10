@@ -16,11 +16,9 @@ import org.bukkit.event.player.*;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.scheduler.BukkitRunnable;
 
-import java.util.logging.Level;
-
 public class GameListeners implements Listener {
 
-    private MarioCraft instance;
+    private final MarioCraft instance;
 
     public GameListeners(MarioCraft instance){
         this.instance = instance;

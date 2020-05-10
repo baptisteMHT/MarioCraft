@@ -11,25 +11,22 @@ import io.github.baptistemht.mariocraft.game.player.PlayerData;
 import io.github.baptistemht.mariocraft.util.BoxUtils;
 import io.github.baptistemht.mariocraft.util.TrackUtils;
 import io.github.baptistemht.mariocraft.vehicle.Vehicle;
-import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.block.Block;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.Player;
 import org.bukkit.scheduler.BukkitRunnable;
-import org.bukkit.scheduler.BukkitTask;
 import org.bukkit.util.Vector;
 
-import java.util.HashMap;
-import java.util.Map;
-import java.util.UUID;
-import java.util.logging.Level;
+import java.util.*;
 
 public class EntityController extends PacketAdapter {
 
-    private MarioCraft instance;
-    private Map<Player, Location> lastBox;
+    private final MarioCraft instance;
+    private final Map<Player, Location> lastBox;
+
+    private double diffMultiplier = 0;
 
     public EntityController(MarioCraft plugin, ListenerPriority listenerPriority, PacketType... types) {
         super(plugin, listenerPriority, types);
@@ -41,16 +38,17 @@ public class EntityController extends PacketAdapter {
     public void onPacketReceiving(PacketEvent event) {
         Player p = event.getPlayer();
         PlayerData d = instance.getPlayerManager().getPlayerData(p.getUniqueId());
+        Location l = p.getLocation();
+
         Entity e = p.getVehicle();
         Vehicle v = Vehicle.getVehicleFromEntityType(e.getType());
-        Location l = p.getLocation();
-        Block standingOnBlock = e.getWorld().getBlockAt(e.getLocation().getBlockX(), e.getLocation().getBlockY() -1, e.getLocation().getBlockZ());
-        Block deepBlock = e.getWorld().getBlockAt(e.getLocation().getBlockX(), e.getLocation().getBlockY() -2, e.getLocation().getBlockZ());
+
+        Material standingOnMaterial = e.getWorld().getBlockAt(e.getLocation().getBlockX(), e.getLocation().getBlockY() -1, e.getLocation().getBlockZ()).getType();
+        Material deepMaterial = e.getWorld().getBlockAt(e.getLocation().getBlockX(), e.getLocation().getBlockY() -2, e.getLocation().getBlockZ()).getType();
 
         WrapperPlayClientSteerVehicle wrapper = new WrapperPlayClientSteerVehicle(event.getPacket());
 
-        double xSpeed = TrackUtils.getTrackAdherenceMultiplierFromMaterial(standingOnBlock.getType())*instance.getDifficulty().getMultiplier()*v.getSpeed()*p.getLocation().getDirection().getX();
-        double zSpeed = TrackUtils.getTrackAdherenceMultiplierFromMaterial(standingOnBlock.getType())*instance.getDifficulty().getMultiplier()*v.getSpeed()*p.getLocation().getDirection().getZ();
+        if(diffMultiplier == 0)diffMultiplier = instance.getDifficulty().getMultiplier();
 
         //ENTITY ORIENTATION
         p.getVehicle().setRotation(p.getLocation().getYaw(), p.getLocation().getPitch());
@@ -58,80 +56,58 @@ public class EntityController extends PacketAdapter {
 
         if(instance.getGameState() != GameState.RACING) return;
 
+        double xVel = TrackUtils.getTrackAdherence(standingOnMaterial)*diffMultiplier*v.getSpeed()*l.getDirection().getX();
+        double zVel = TrackUtils.getTrackAdherence(standingOnMaterial)*diffMultiplier*v.getSpeed()*l.getDirection().getZ();
+
         //KART CONTROL
         if(wrapper.getForward() > 0.1){
-            Vector forward = new Vector(xSpeed, -0.2, zSpeed);
-            e.setVelocity(forward);
+            e.setVelocity(new Vector(xVel, -0.2, zVel));
         }else if(wrapper.getForward() < -0.1){
-            Vector backward = new Vector((-0.5*xSpeed), -0.2, (-0.5*zSpeed));
-            e.setVelocity(backward);
+            e.setVelocity(new Vector((-0.5*xVel), -0.2, (-0.5*zVel)));
         }
-
-
 
         //BOX DETECTION
-        for (Block b : BoxUtils.getNearbyBlocks(l, 1)){
+        for(int x = l.getBlockX() - 1; x <= l.getBlockX() + 1; x++) {
+            for(int y = l.getBlockY(); y <= l.getBlockY() + 1; y++) {
+                for(int z = l.getBlockZ() - 1; z <= l.getBlockZ() + 1; z++) {
 
-            int x = b.getX();
-            int y = b.getY();
-            int z = b.getZ();
+                    Entity box = BoxUtils.getBox(x, z);
 
-            Entity box = BoxUtils.getBox(x, z);
-            if(box != null){
-                if(!lastBox.containsKey(p) || lastBox.containsKey(p) && x != lastBox.get(p).getBlockX() && z != lastBox.get(p).getBlockZ()){
+                    if(box != null){
+                        if(!lastBox.containsKey(p) || lastBox.containsKey(p) && x != lastBox.get(p).getBlockX() && z != lastBox.get(p).getBlockZ()){
 
-                    lastBox.remove(p);
-                    lastBox.put(p, b.getLocation());
+                            final int x1 = x, y1 = y, z1 = z;
 
-                    BoxUtils.loot(p);
-
-                    instance.getServer().getScheduler().runTask(instance, () -> BoxUtils.delBox(x, z));
-                    new BukkitRunnable() {
-                        @Override
-                        public void run() {
                             lastBox.remove(p);
-                            BoxUtils.generateBox(new Location(p.getWorld(), x, (y+1), z));
+                            lastBox.put(p, box.getLocation());
+
+                            BoxUtils.loot(p);
+
+                            instance.getServer().getScheduler().runTask(instance, () -> BoxUtils.delBox(x1, z1));
+                            new BukkitRunnable() {
+                                @Override
+                                public void run() {
+                                    lastBox.remove(p);
+                                    BoxUtils.generateBox(new Location(p.getWorld(), x1, (y1+1), z1));
+                                }
+                            }.runTaskLater(instance, 100L);
+
                         }
-                    }.runTaskLater(instance, 100L);
+                    }
                 }
             }
-
         }
+
 
         //CHECKPOINT DETECTION
-        if(deepBlock.getType() == Material.BLACK_CONCRETE || deepBlock.getType() == Material.YELLOW_CONCRETE){
+        if(deepMaterial == Material.BLACK_CONCRETE || deepMaterial == Material.YELLOW_CONCRETE){
             if(d.getLastCheckpoint() == null && d.getLaps() == 1.0){
-                d.setLastCheckpoint(deepBlock.getType());
-            }else if(deepBlock.getType() != d.getLastCheckpoint()){
+                d.setLastCheckpoint(deepMaterial);
+            }else if(deepMaterial != d.getLastCheckpoint()){
                 d.incrLaps();
-                d.setLastCheckpoint(deepBlock.getType());
+                d.setLastCheckpoint(deepMaterial);
             }
         }
 
-        //COLLISION DETECTION (NOT TESTED YET BUT IT'LL BE WEIRD)
-
-        if(instance.isCollision()){
-            for(UUID id : instance.getPlayerManager().getPlayersData().keySet()){
-
-                Player ps = Bukkit.getPlayer(id);
-
-                if(ps.getLocation().getBlockX() == l.getBlockX() && ps.getLocation().getBlockY() == l.getBlockY() && ps.getLocation().getBlockZ() == l.getBlockZ()){
-
-                    if(Vehicle.getVehicleFromPlayer(p).getWeight() > Vehicle.getVehicleFromPlayer(ps).getWeight()){
-                        Vector vector = new Vector(-ps.getLocation().getDirection().getX()*0.1, ps.getLocation().getDirection().getY(), -ps.getLocation().getDirection().getZ()*0.1);
-                        ps.setVelocity(vector);
-                    }else if(Vehicle.getVehicleFromPlayer(p).getWeight() < Vehicle.getVehicleFromPlayer(ps).getWeight()){
-                        Vector vector = new Vector(-p.getLocation().getDirection().getX()*0.1, p.getLocation().getDirection().getY(), -p.getLocation().getDirection().getZ()*0.1);
-                        p.setVelocity(vector);
-                    }else {
-                        Vector vector = new Vector(-p.getLocation().getDirection().getX()*0.05, p.getLocation().getDirection().getY(), -p.getLocation().getDirection().getZ()*0.05);
-                        p.setVelocity(vector);
-                        ps.setVelocity(vector);
-                    }
-
-                }
-            }
-
-        }
     }
 }

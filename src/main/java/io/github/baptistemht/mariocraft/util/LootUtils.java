@@ -51,7 +51,7 @@ public class LootUtils {
     private static void squidExecutor(Player sender){
         MarioCraft instance = MarioCraft.getInstance();
 
-        PotionEffect effect = new PotionEffect(PotionEffectType.BLINDNESS, 60, 1, true, true);
+        PotionEffect effect = new PotionEffect(PotionEffectType.BLINDNESS, 40, 1, true, true);
 
         for(UUID id : instance.getPlayerManager().getData().keySet()){
             Player p = Bukkit.getPlayer(id);

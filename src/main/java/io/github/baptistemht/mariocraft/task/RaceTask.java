@@ -7,6 +7,7 @@ import io.github.baptistemht.mariocraft.track.Track;
 import io.github.baptistemht.mariocraft.util.GameUtils;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
+import org.bukkit.entity.Player;
 import org.bukkit.scheduler.BukkitRunnable;
 
 import java.util.*;
@@ -18,9 +19,9 @@ public class RaceTask {
 
     private int countdown;
 
-    private Set<UUID> pilots;
-    private Map<String, String> raceData;
-    private List<UUID> finishers;
+    private final Set<UUID> pilots;
+    private final Map<String, String> raceData;
+    private final List<UUID> finishers;
 
     private final Track t;
 
@@ -127,12 +128,13 @@ public class RaceTask {
     }
 
     private void sendTitle(UUID id, String title, String subtitle, int duration){
-        Bukkit.getPlayer(id).sendTitle(title, subtitle, 2, duration, 2);
+        Player p = Bukkit.getPlayer(id);
+        if(p != null) p.sendTitle(title, subtitle, 2, duration, 2);
     }
 
     private void sendTitle(String title, String subtitle, int duration){
         for(UUID id : pilots){
-            Bukkit.getPlayer(id).sendTitle(title, subtitle, 2, duration, 2);
+            sendTitle(id, title, subtitle, duration);
         }
     }
 }

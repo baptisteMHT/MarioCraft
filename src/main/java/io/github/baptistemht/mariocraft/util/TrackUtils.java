@@ -4,7 +4,7 @@ import org.bukkit.Material;
 
 public class TrackUtils {
 
-    public static double getTrackAdherenceMultiplierFromMaterial(Material m){
+    public static double getTrackAdherence(Material m){
 
         switch (m){
             case GRASS_BLOCK:
@@ -18,7 +18,6 @@ public class TrackUtils {
                 return 1.5;
 
             default: return 1.0;
-
         }
 
     }

@@ -5,13 +5,6 @@ version: 0.1
 depend: [ProtocolLib]
 api-version: 1.13
 commands:
-  collision:
-    description: Enable/Disable collisions.
-    usage: /collision
   start:
     description: Start game.
     usage: /start
-  reloadtracks:
-    description: Reload tracks.
-    usage: /tracks
-    aliases: rt

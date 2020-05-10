@@ -1,7 +1,6 @@
 package io.github.baptistemht.mariocraft.task;
 
 import io.github.baptistemht.mariocraft.MarioCraft;
-import io.github.baptistemht.mariocraft.game.GameState;
 import io.github.baptistemht.mariocraft.track.Track;
 import io.github.baptistemht.mariocraft.util.GameUtils;
 import org.bukkit.Bukkit;
@@ -17,16 +16,11 @@ import java.util.UUID;
 
 public class TrackSelectionTask {
 
-    private final MarioCraft instance;
-
     public TrackSelectionTask(MarioCraft instance){
-        this.instance = instance;
-
         final Set<UUID> ids = instance.getPlayerManager().getPlayersData().keySet();
 
-
-        final ItemStack s = new ItemStack(Material.MUSIC_DISC_WARD);
-        final ItemMeta m = s.getItemMeta();
+        ItemStack s = new ItemStack(Material.MUSIC_DISC_WARD);
+        ItemMeta m = s.getItemMeta();
         m.setDisplayName("Track selector");
         s.setItemMeta(m);
 
@@ -62,7 +56,7 @@ public class TrackSelectionTask {
 
                             new RaceTask(instance, t);
                         }
-                    }.runTaskLater(instance, 60L);
+                    }.runTaskLater(instance, 10L);
 
                     this.cancel();
                 }

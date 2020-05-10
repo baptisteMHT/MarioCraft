@@ -1,18 +1,11 @@
 package io.github.baptistemht.mariocraft.controller.listener;
 
-import io.github.baptistemht.mariocraft.MarioCraft;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.player.PlayerToggleSprintEvent;
 import org.bukkit.event.vehicle.VehicleExitEvent;
 
 public class ControllerListeners implements Listener {
-
-    private MarioCraft instance;
-
-    public ControllerListeners(MarioCraft instance){
-        this.instance = instance;
-    }
 
     @EventHandler
     public void onDismount(VehicleExitEvent e){

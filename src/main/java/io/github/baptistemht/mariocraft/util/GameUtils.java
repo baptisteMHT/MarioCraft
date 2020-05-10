@@ -10,74 +10,57 @@ import org.bukkit.Location;
 import org.bukkit.entity.Player;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
 import java.util.UUID;
 
 public class GameUtils {
 
-    public static boolean tpPlayerToLobby(Player p){
+    public static void tpPlayerToLobby(Player p){
         p.teleport(MarioCraft.getInstance().getHub());
-        return true;
     }
 
-    public static boolean tpAllToLobby(){
+    public static void tpAllToLobby(){
         Location l = MarioCraft.getInstance().getHub();
         for(Player p : Bukkit.getOnlinePlayers()){
             p.leaveVehicle();
             p.teleport(l);
         }
-        return true;
     }
 
-    public static boolean tpPlayersToLobby(){
-        Location l = MarioCraft.getInstance().getHub();
-        for(UUID id : MarioCraft.getInstance().getPlayerManager().getPlayersData().keySet()){
-            Bukkit.getPlayer(id).teleport(l);
-        }
-        return true;
-    }
-
-    public static boolean tpSpectatorsToLobby(){
-        Location l = MarioCraft.getInstance().getHub();
-        for(UUID id : MarioCraft.getInstance().getPlayerManager().getSpecsData().keySet()){
-            Bukkit.getPlayer(id).teleport(l);
-        }
-        return true;
-    }
-
-    public static boolean tpAllToTrack(Track t){
+    public static void tpAllToTrack(Track t){
         PlayerManager pm = MarioCraft.getInstance().getPlayerManager();
 
-        List<Location> positions = new ArrayList<>();
-
-        positions.add(t.getGrid());
+        Location[] positions = {t.getGrid(), null, null, null, null, null, null, null, null}; //can I make it better?
 
         for(int i = 0 ; i!=(pm.getPlayersData().size() -1) ; i++){
 
-            int x = positions.get(i).getBlockX() - 3;
-            int y = positions.get(i).getBlockY();
-            int z = positions.get(i).getBlockZ() - 3;
+            int x = positions[i].getBlockX() - 3;
+            int y = positions[i].getBlockY();
+            int z = positions[i].getBlockZ() - 3;
 
             if(i == 2 || i == 5){
                 z = z + 6;
             }
 
-            positions.add(new Location(t.getWorld(), x, y, z));
+            positions[i+1] = new Location(t.getWorld(), x, y, z);
         }
 
         int i = 0;
 
         for(UUID id : pm.getData().keySet()){
             PlayerData data = pm.getPlayerData(id);
-            if(data.getState() == PlayerState.SPECTATOR){
-                Bukkit.getPlayer(id).teleport(positions.get(0).add(0, 10, 0));
-            }else{
-                Bukkit.getPlayer(id).teleport(positions.get(i));
-                i++;
+            Player p = Bukkit.getPlayer(id);
+            if(p != null){
+                if(data.getState() == PlayerState.SPECTATOR){
+                    p.teleport(positions[0].add(0, 10, 0));
+                }else{
+                    p.teleport(positions[i]);
+                    i++;
+                }
             }
         }
 
-        return true;
     }
 
 }

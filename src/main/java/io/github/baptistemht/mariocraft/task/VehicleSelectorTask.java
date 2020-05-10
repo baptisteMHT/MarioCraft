@@ -14,13 +14,9 @@ import java.util.UUID;
 
 public class VehicleSelectorTask {
 
-    private final MarioCraft instance;
-
-    int i;
+    private int i;
 
     public VehicleSelectorTask(MarioCraft instance){
-        this.instance = instance;
-
         i = 0;
 
         Set<UUID> ids = instance.getPlayerManager().getPlayersData().keySet();

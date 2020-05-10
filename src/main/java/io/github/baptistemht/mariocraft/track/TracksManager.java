@@ -70,7 +70,6 @@ public class TracksManager {
         instance.getLogger().log(Level.INFO, "[TrackFinder] " + tracks.size() + " track(s) registered in " + (System.currentTimeMillis() - t0) + "ms.");
 
         instance.getTrackListGUI().initializeItems();
-
     }
 
     public Track getTrackFromName(String name){
@@ -85,11 +84,6 @@ public class TracksManager {
             if(t.getSelector() == material)return t;
         }
         return null;
-    }
-
-    public void reloadTracks(){
-        instance.getLogger().log(Level.WARNING, "[TrackFinder] Reloading tracks. Please wait.");
-        loadTracks();
     }
 
     public List<Track> getTracks() {
