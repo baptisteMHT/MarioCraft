@@ -139,7 +139,7 @@ public class MarioCraft extends JavaPlugin {
     }
 
     public int updateRaceCount(){
-        raceCount  = raceCount--;
+        raceCount = raceCount--;
         return raceCount;
     }
 

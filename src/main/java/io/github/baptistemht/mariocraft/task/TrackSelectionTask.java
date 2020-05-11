@@ -56,7 +56,7 @@ public class TrackSelectionTask {
 
                             new RaceTask(instance, t);
                         }
-                    }.runTaskLater(instance, 10L);
+                    }.runTaskLater(instance, 40L);
 
                     this.cancel();
                 }

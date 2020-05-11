@@ -26,7 +26,6 @@ public class PlayerManager {
     }
 
     public PlayerData getPlayerData(UUID id){
-        if(!data.containsKey(id))return null;
         return data.get(id);
     }
 

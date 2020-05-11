@@ -56,8 +56,8 @@ public class EntityController extends PacketAdapter {
 
         if(instance.getGameState() != GameState.RACING) return;
 
-        double xVel = TrackUtils.getTrackAdherence(standingOnMaterial)*diffMultiplier*v.getSpeed()*l.getDirection().getX();
-        double zVel = TrackUtils.getTrackAdherence(standingOnMaterial)*diffMultiplier*v.getSpeed()*l.getDirection().getZ();
+        double xVel = TrackUtils.getTrackAdherence(standingOnMaterial)*diffMultiplier*d.getMushroomEffect()*v.getSpeed()*l.getDirection().getX();
+        double zVel = TrackUtils.getTrackAdherence(standingOnMaterial)*diffMultiplier*d.getMushroomEffect()*v.getSpeed()*l.getDirection().getZ();
 
         //KART CONTROL
         if(wrapper.getForward() > 0.1){

@@ -2,11 +2,13 @@ package io.github.baptistemht.mariocraft.util;
 
 import io.github.baptistemht.mariocraft.MarioCraft;
 import io.github.baptistemht.mariocraft.game.BoxLoot;
+import io.github.baptistemht.mariocraft.game.player.PlayerManager;
 import io.github.baptistemht.mariocraft.game.player.PlayerState;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 import org.bukkit.potion.PotionEffect;
 import org.bukkit.potion.PotionEffectType;
+import org.bukkit.scheduler.BukkitRunnable;
 
 import java.util.UUID;
 
@@ -33,7 +35,17 @@ public class LootUtils {
     }
 
     private static void mushroomExecutor(Player sender){
-
+        final UUID id = sender.getUniqueId();
+        final PlayerManager pm = MarioCraft.getInstance().getPlayerManager();
+        new BukkitRunnable() {
+            @Override
+            public void run() {
+                for(int i = 1000; i>0; i--){
+                   pm.getPlayerData(id).setMushroomEffect(1 + i*0.0015);
+                }
+                pm.getPlayerData(id).setMushroomEffect(1.0);
+            }
+        }.runTaskAsynchronously(MarioCraft.getInstance());
     }
 
     private static void bananaExecutor(Player sender){

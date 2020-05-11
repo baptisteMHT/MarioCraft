@@ -53,9 +53,8 @@ public class TracksManager {
                 if (!wNames.contains(f.getName())) {
 
                     final World w = instance.getServer().createWorld(new WorldCreator(f.getName()));
-                    final Material m = Material.valueOf(s[2].toUpperCase());
 
-                    tracks.add(new Track(s[1].replace("_", " "), w, w.getSpawnLocation(), m, Integer.parseInt(s[3])));
+                    tracks.add(new Track(s[1].replace("_", " "), w, w.getSpawnLocation(), Material.valueOf(s[2].toUpperCase()), Integer.parseInt(s[3])));
                     instance.getLogger().log(Level.INFO, "[TrackFinder] Track " + s[1] + " registered.");
 
                 }

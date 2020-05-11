@@ -10,6 +10,9 @@ import org.bukkit.ChatColor;
 import org.bukkit.entity.Player;
 import org.bukkit.scheduler.BukkitRunnable;
 
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.*;
 import java.util.logging.Level;
 
@@ -79,12 +82,8 @@ public class RaceTask {
                     if(!finishers.contains(id)){
                         double l = d.getLaps();
 
-                        instance.getLogger().log(Level.INFO, "Check: " + l);
-
                         if(l == (Double.parseDouble(raceData.get(id.toString() + ":lap")) + 1.0)){
                             raceData.replace(id.toString() + ":lap", l + "");
-
-                            instance.getLogger().log(Level.INFO, "Lap updated " + l);
 
                             long lastElapsedTime = Long.parseLong(raceData.get(id.toString() + ":elapsedTime"));
                             long lapTime = System.currentTimeMillis() - lastElapsedTime;
@@ -92,7 +91,7 @@ public class RaceTask {
                             raceData.put(id.toString() + ":lapTime:" + l, lapTime + "");
                             raceData.replace(id.toString() + ":elapsedTime", (System.currentTimeMillis() - time) + "");
 
-                            sendTitle(id," ", "Lap " + l +  "/" + t.getLaps() + " | " + lapTime, 20); //ADD FORMAT AND COLOR
+                            sendTitle(id," ", "Lap " + Math.round(l) +  "/" + t.getLaps() + " | " + lapTime, 20); //ADD FORMAT AND COLOR
                         }
 
 
@@ -105,13 +104,20 @@ public class RaceTask {
                             if(finishers.size() >= pilots.size()){
                                 Bukkit.broadcastMessage("[MarioCraft] " + Bukkit.getPlayer(finishers.get(0)).getDisplayName() + " won the race!");
 
+                                instance.updateRaceCount();
+
                                 new BukkitRunnable() {
                                     @Override
                                     public void run() {
-                                        instance.setGameState(GameState.SELECTION);
-                                        GameUtils.tpAllToLobby();
-                                        t.reset();
-                                        new TrackSelectionTask(instance);
+                                        if(instance.getRaceCount() > 0){
+                                            instance.setGameState(GameState.SELECTION);
+                                            GameUtils.tpAllToLobby();
+                                            t.reset();
+                                            new TrackSelectionTask(instance);
+                                        }else{
+                                            //finish
+                                        }
+
                                     }
                                 }.runTaskLater(instance, 160L);
 
