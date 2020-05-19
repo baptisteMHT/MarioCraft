@@ -1,81 +1,75 @@
 package io.github.baptistemht.mariocraft.track;
 
 import io.github.baptistemht.mariocraft.MarioCraft;
-import io.github.baptistemht.mariocraft.util.BoxUtils;
 import org.bukkit.*;
-import org.bukkit.scheduler.BukkitRunnable;
 
 import java.io.File;
 import java.util.*;
-import java.util.concurrent.PriorityBlockingQueue;
 import java.util.logging.Level;
 
 public class TracksManager {
 
     private final MarioCraft instance;
 
-    private List<Track> tracks;
-    private List<Track> tracksToRandomize;
+    private final List<Track> tracks;
+    private final List<Track> votedTracks;
 
-    private List<ChunkSnapshot> chunks;
+    private boolean loaded;
 
     public TracksManager(MarioCraft instance) {
         this.instance = instance;
+
         tracks = new ArrayList<>();
-        tracksToRandomize = new ArrayList<>();
-        chunks = new ArrayList<>();
+        votedTracks = new ArrayList<>();
+
+        loaded = false;
     }
 
     public void loadTracks() {
-
-        long t0 = System.currentTimeMillis();
-        instance.getLogger().log(Level.INFO, "[TrackFinder] Looking for tracks...");
-
-        BoxUtils.resetBoxesFromAllTracks();
-        tracks.clear();
-
-        List<String> wNames = new ArrayList<>();
-
-        for (World w : instance.getServer().getWorlds()) {
-            wNames.add(w.getName());
-            if (w.getName().contains("track")) {
-                tracks.add(new Track(w.getName().split("-")[1].replace("_", " "), w, w.getSpawnLocation(), Material.valueOf(w.getName().split("-")[2].toUpperCase()), Integer.parseInt(w.getName().split("-")[3])));
-                instance.getLogger().log(Level.INFO, "[TrackFinder] Track " + w.getName().split("-")[1] + " registered.");
-            }
-        }
-
-        for (File f : instance.getServer().getWorldContainer().listFiles()) {
-            if (f.getName().contains("track")) {
-
-                final String name = f.getName();
-                final String s[] = name.split("-");
-
-                if (!wNames.contains(f.getName())) {
-
-                    final World w = instance.getServer().createWorld(new WorldCreator(f.getName()));
-
-                    tracks.add(new Track(s[1].replace("_", " "), w, w.getSpawnLocation(), Material.valueOf(s[2].toUpperCase()), Integer.parseInt(s[3])));
-                    instance.getLogger().log(Level.INFO, "[TrackFinder] Track " + s[1] + " registered.");
-
+        instance.getServer().getScheduler().runTaskAsynchronously(instance, new Runnable() {
+            @Override
+            public void run() {
+                if(loaded){
+                    instance.getLogger().log(Level.WARNING, "[TrackFinder] Tracks are already loaded.");
+                    return;
                 }
+
+                instance.getLogger().log(Level.INFO, "[TrackFinder] Looking for tracks...");
+
+                final long t0 = System.currentTimeMillis();
+
+                for (File f : instance.getServer().getWorldContainer().listFiles()) {
+                    if (f.getName().contains("track")) {
+
+                        final String name = f.getName();
+                        final String[] s = name.split("-");
+
+                        instance.getServer().getScheduler().runTask(instance, new Runnable() {
+                            @Override
+                            public void run() {
+                                final World w = instance.getServer().createWorld(new WorldCreator(f.getName()));
+                                tracks.add(new Track(s[1].replace("_", " "), w, w.getSpawnLocation(), Material.valueOf(s[2].toUpperCase()), Integer.parseInt(s[3])));
+
+                                instance.getLogger().log(Level.INFO, "[TrackFinder] Track " + s[1] + " registered.");
+                            }
+                        });
+
+                    }
+                }
+
+                if (tracks.size() == 0) {
+                    instance.getLogger().log(Level.WARNING, "[TrackFinder] 0 track found. Trying again in 2 minutes.");
+                    loadTracks();
+                    return;
+                }
+
+                instance.getTrackListGUI().initializeItems();
+
+                loaded = true;
+
+                instance.getLogger().log(Level.INFO, "[TrackFinder] " + tracks.size() + " track(s) registered in " + (System.currentTimeMillis() - t0) + "ms.");
             }
-        }
-
-        if (tracks.size() == 0) {
-            instance.getLogger().log(Level.WARNING, "[TrackFinder] 0 track found. Trying again in 2 minutes.");
-            loadTracks();
-        }
-
-        instance.getLogger().log(Level.INFO, "[TrackFinder] " + tracks.size() + " track(s) registered in " + (System.currentTimeMillis() - t0) + "ms.");
-
-        instance.getTrackListGUI().initializeItems();
-    }
-
-    public Track getTrackFromName(String name){
-        for(Track t : tracks){
-            if(t.getName().equalsIgnoreCase(name))return t;
-        }
-        return null;
+        });
     }
 
     public Track getTrackFromSelector(Material material){
@@ -89,7 +83,7 @@ public class TracksManager {
         return tracks;
     }
 
-    public List<Track> getTTR() {
-        return tracksToRandomize;
+    public List<Track> getVotedTracks() {
+        return votedTracks;
     }
 }
