@@ -9,20 +9,22 @@ import org.bukkit.entity.Player;
 
 public enum Vehicle {
 
-    LIGHT_KART("Light Kart", EntityType.RABBIT,2.5, 1.5, Material.RABBIT_SPAWN_EGG),
-    KART("Kart", EntityType.SHEEP, 2, 2, Material.SHEEP_SPAWN_EGG),
-    HEAVY_KART("Heavy Kart", EntityType.TURTLE, 1.5, 2.5, Material.TURTLE_SPAWN_EGG);
+    LIGHT_KART("Light Kart", EntityType.RABBIT,2.5, 2,1.5, Material.RABBIT_SPAWN_EGG),
+    KART("Kart", EntityType.SHEEP, 2, 3,2, Material.SHEEP_SPAWN_EGG),
+    HEAVY_KART("Heavy Kart", EntityType.TURTLE, 1.5,4, 2.5, Material.TURTLE_SPAWN_EGG);
 
     final String name;
     final EntityType type;
-    final double speed;
+    final double maxSpeed;
+    final int acceleration;
     final double weight;
     final Material selector;
 
-    Vehicle(String name, EntityType type, double speed, double weight, Material selector){
+    Vehicle(String name, EntityType type, double maxSpeed, int acceleration, double weight, Material selector){
         this.name = name;
         this.type = type;
-        this.speed = speed;
+        this.maxSpeed = maxSpeed;
+        this.acceleration = acceleration;
         this.weight = weight;
         this.selector = selector;
     }
@@ -35,8 +37,12 @@ public enum Vehicle {
         return type;
     }
 
-    public double getSpeed() {
-        return speed;
+    public double getMaxSpeed() {
+        return maxSpeed;
+    }
+
+    public int getAcceleration() {
+        return acceleration;
     }
 
     public double getWeight() {
@@ -47,7 +53,7 @@ public enum Vehicle {
         return selector;
     }
 
-    public Entity summon(Player p){
+    public void summon(Player p){
         World w = p.getWorld();
         Entity e = w.spawnEntity(p.getLocation(), type);
         e.setCustomName(name);
@@ -56,7 +62,6 @@ public enum Vehicle {
         e.setSilent(true);
         e.addPassenger(p);
         MarioCraft.getInstance().getPlayerManager().getPlayerData(p.getUniqueId()).setVehicle(this);
-        return e;
     }
 
     public static Vehicle getVehicleFromEntityType(EntityType e){

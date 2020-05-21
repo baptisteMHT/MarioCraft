@@ -13,7 +13,6 @@ import io.github.baptistemht.mariocraft.util.TrackUtils;
 import io.github.baptistemht.mariocraft.vehicle.Vehicle;
 import org.bukkit.Location;
 import org.bukkit.Material;
-import org.bukkit.block.Block;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.Player;
 import org.bukkit.scheduler.BukkitRunnable;
@@ -28,10 +27,15 @@ public class EntityController extends PacketAdapter {
 
     private double diffMultiplier = 0;
 
+    private final Map<UUID, Integer> enginesRPM;
+    private final Map<UUID, Integer> enginesThr;
+
     public EntityController(MarioCraft plugin, ListenerPriority listenerPriority, PacketType... types) {
         super(plugin, listenerPriority, types);
-        this.instance = plugin;
-        this.lastBox = new HashMap<>();
+        instance = plugin;
+        lastBox = new HashMap<>();
+        enginesRPM = new HashMap<>();
+        enginesThr = new HashMap<>();
     }
 
     @Override
@@ -56,15 +60,67 @@ public class EntityController extends PacketAdapter {
 
         if(instance.getGameState() != GameState.RACING) return;
 
-        double xVel = TrackUtils.getTrackAdherence(standingOnMaterial)*diffMultiplier*d.getMushroomEffect()*v.getSpeed()*l.getDirection().getX();
-        double zVel = TrackUtils.getTrackAdherence(standingOnMaterial)*diffMultiplier*d.getMushroomEffect()*v.getSpeed()*l.getDirection().getZ();
+        if(!enginesThr.containsKey(p.getUniqueId())) enginesThr.put(p.getUniqueId(), 0);
+        if(!enginesRPM.containsKey(p.getUniqueId())) enginesRPM.put(p.getUniqueId(), 0);
 
-        //KART CONTROL
-        if(wrapper.getForward() > 0.1){
-            e.setVelocity(new Vector(xVel, -0.2, zVel));
-        }else if(wrapper.getForward() < -0.1){
-            e.setVelocity(new Vector((-0.5*xVel), -0.2, (-0.5*zVel)));
+        int out = enginesRPM.get(p.getUniqueId());
+
+        if(wrapper.getForward() > 0.1 || wrapper.getForward() < -0.1){
+
+            if(wrapper.getForward() > 0.1){
+                enginesThr.replace(p.getUniqueId(), 1);
+            }else if(wrapper.getForward() < -0.1){
+                enginesThr.replace(p.getUniqueId(), -1);
+            }
+
+            out = enginesRPM.get(p.getUniqueId()) + (enginesThr.get(p.getUniqueId()) * v.getAcceleration());
+
+        }else{
+
+            enginesThr.replace(p.getUniqueId(), 0);
+
+            if(out > 0){
+                out = enginesRPM.get(p.getUniqueId()) - 5;
+            }else if(out < 0){
+                out = enginesRPM.get(p.getUniqueId()) + 5;
+            }
+
+            if(out < 5 && out > -5){
+                out = 0;
+            }
+
         }
+
+        if(out >= 100){
+            out = 99;
+        } else if(out <= -100){
+            out = -99;
+        }
+
+        enginesRPM.replace(p.getUniqueId(), out);
+
+        instance.getLogger().info("Throttle: " + enginesThr.get(p.getUniqueId()) + " || RPM: " + out);
+
+
+
+
+
+        if(wrapper.getSideways() > 0.1){
+            //left
+        }else if(wrapper.getSideways() < -0.1){
+            //right
+        }
+
+
+
+
+
+        double xVel = 0.01 * out * TrackUtils.getTrackAdherence(standingOnMaterial) * diffMultiplier * d.getMushroomEffect() * v.getMaxSpeed() * l.getDirection().getX();
+        double zVel = 0.01 * out * TrackUtils.getTrackAdherence(standingOnMaterial) * diffMultiplier * d.getMushroomEffect() * v.getMaxSpeed() * l.getDirection().getZ();
+
+        e.setVelocity(new Vector(xVel, -0.2, zVel));
+
+
 
         //BOX DETECTION
         for(int x = l.getBlockX() - 1; x <= l.getBlockX() + 1; x++) {
@@ -74,7 +130,7 @@ public class EntityController extends PacketAdapter {
                     Entity box = BoxUtils.getBox(x, z);
 
                     if(box != null){
-                        if(!lastBox.containsKey(p) || lastBox.containsKey(p) && x != lastBox.get(p).getBlockX() && z != lastBox.get(p).getBlockZ()){
+                        if(!lastBox.containsKey(p) || (lastBox.containsKey(p) && x != lastBox.get(p).getBlockX() && z != lastBox.get(p).getBlockZ())){
 
                             final int x1 = x, y1 = y, z1 = z;
 
@@ -88,7 +144,7 @@ public class EntityController extends PacketAdapter {
                                 @Override
                                 public void run() {
                                     lastBox.remove(p);
-                                    BoxUtils.generateBox(new Location(p.getWorld(), x1, (y1+1), z1));
+                                    BoxUtils.generateBox(new Location(p.getWorld(), x1, y1, z1));
                                 }
                             }.runTaskLater(instance, 100L);
 
