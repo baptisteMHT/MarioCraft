@@ -2,6 +2,7 @@ package io.github.baptistemht.mariocraft.track;
 
 import io.github.baptistemht.mariocraft.MarioCraft;
 import org.bukkit.*;
+import org.bukkit.scheduler.BukkitRunnable;
 
 import java.io.File;
 import java.util.*;
@@ -26,50 +27,43 @@ public class TracksManager {
     }
 
     public void loadTracks() {
-        instance.getServer().getScheduler().runTaskAsynchronously(instance, new Runnable() {
-            @Override
-            public void run() {
-                if(loaded){
-                    instance.getLogger().log(Level.WARNING, "[TrackFinder] Tracks are already loaded.");
-                    return;
-                }
+        if(loaded){
+            instance.getLogger().log(Level.WARNING, "[TrackFinder] Tracks are already loaded.");
+            return;
+        }
 
-                instance.getLogger().log(Level.INFO, "[TrackFinder] Looking for tracks...");
+        instance.getLogger().log(Level.INFO, "[TrackFinder] Looking for tracks...");
 
-                final long t0 = System.currentTimeMillis();
+        final long t0 = System.currentTimeMillis();
 
-                for (File f : instance.getServer().getWorldContainer().listFiles()) {
-                    if (f.getName().contains("track")) {
+        for (File f : instance.getServer().getWorldContainer().listFiles()) {
+            if (f.getName().contains("track")) {
+                final String name = f.getName();
+                final String[] s = name.split("-");
+                final World w = instance.getServer().createWorld(new WorldCreator(f.getName()));
 
-                        final String name = f.getName();
-                        final String[] s = name.split("-");
+                tracks.add(new Track(s[1].replace("_", " "), w, w.getSpawnLocation(), Material.valueOf(s[2].toUpperCase()), Integer.parseInt(s[3]), s[4]));
 
-                        instance.getServer().getScheduler().runTask(instance, new Runnable() {
-                            @Override
-                            public void run() {
-                                final World w = instance.getServer().createWorld(new WorldCreator(f.getName()));
-                                tracks.add(new Track(s[1].replace("_", " "), w, w.getSpawnLocation(), Material.valueOf(s[2].toUpperCase()), Integer.parseInt(s[3])));
-
-                                instance.getLogger().log(Level.INFO, "[TrackFinder] Track " + s[1] + " registered.");
-                            }
-                        });
-
-                    }
-                }
-
-                if (tracks.size() == 0) {
-                    instance.getLogger().log(Level.WARNING, "[TrackFinder] 0 track found. Trying again in 2 minutes.");
-                    loadTracks();
-                    return;
-                }
-
-                instance.getTrackListGUI().initializeItems();
-
-                loaded = true;
-
-                instance.getLogger().log(Level.INFO, "[TrackFinder] " + tracks.size() + " track(s) registered in " + (System.currentTimeMillis() - t0) + "ms.");
+                instance.getLogger().log(Level.INFO, "[TrackFinder] Track " + s[1] + " registered.");
             }
-        });
+        }
+
+        if (tracks.size() == 0) {
+            instance.getLogger().log(Level.WARNING, "[TrackFinder] 0 track found. Trying again in 2 minutes.");
+            new BukkitRunnable() {
+                @Override
+                public void run() {
+                    loadTracks();
+                }
+            }.runTaskLater(instance, 2400L);
+            return;
+        }
+
+        instance.getTrackListGUI().initializeItems();
+
+        loaded = true;
+
+        instance.getLogger().log(Level.INFO, "[TrackFinder] " + tracks.size() + " track(s) registered in " + (System.currentTimeMillis() - t0) + "ms.");
     }
 
     public Track getTrackFromSelector(Material material){

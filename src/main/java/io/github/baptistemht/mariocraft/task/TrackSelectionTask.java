@@ -33,13 +33,13 @@ public class TrackSelectionTask {
         new BukkitRunnable() {
             @Override
             public void run() {
-                if(instance.getTracksManager().getTTR().size() >= ids.size()){
+                if(instance.getTracksManager().getVotedTracks().size() >= ids.size()){
 
-                    final Track t = instance.getTracksManager().getTracks().get(new Random().nextInt(instance.getTracksManager().getTTR().size()));
+                    final Track t = instance.getTracksManager().getTracks().get(new Random().nextInt(instance.getTracksManager().getVotedTracks().size()));
 
                     Bukkit.broadcastMessage("[MarioCraft] Everyone chose a track! Selected track: " + t.getName().replace("_", " "));
 
-                    instance.getTracksManager().getTTR().clear();
+                    instance.getTracksManager().getVotedTracks().clear();
 
                     for(Player p : Bukkit.getOnlinePlayers()){
                         p.getInventory().clear();

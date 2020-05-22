@@ -21,13 +21,15 @@ public class Track {
     private final Material selector;
     private final List<Location> boxes;
     private final int laps;
+    private final String author;
 
-    public Track(String name, World world, Location grid, Material selector, int laps){
+    public Track(String name, World world, Location grid, Material selector, int laps, String author){
         this.name = name;
         this.world = world;
         this.grid = grid;
         this.selector = selector;
         this.laps = laps;
+        this.author = author;
 
         boxes = new ArrayList<>();
 
@@ -47,9 +49,9 @@ public class Track {
                     if(e.getType() == EntityType.ARMOR_STAND){
                         boxes.add(e.getLocation());
                         MarioCraft.getInstance().getLogger().log(Level.INFO, "[TrackLoader:" + name + "] Box found. (" + e.getLocation().getBlockX() + ";" + e.getLocation().getBlockY() + ";" + e.getLocation().getBlockZ() + ")");
+                        e.remove();
                         i++;
                     }
-                    e.remove();
                 }
 
                 new BukkitRunnable() {
@@ -89,5 +91,9 @@ public class Track {
 
     public int getLaps() {
         return laps;
+    }
+
+    public String getAuthor() {
+        return author;
     }
 }

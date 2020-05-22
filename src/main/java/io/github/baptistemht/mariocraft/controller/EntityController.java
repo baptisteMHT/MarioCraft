@@ -115,8 +115,8 @@ public class EntityController extends PacketAdapter {
 
 
 
-        double xVel = 0.01 * out * TrackUtils.getTrackAdherence(standingOnMaterial) * diffMultiplier * d.getMushroomEffect() * v.getMaxSpeed() * l.getDirection().getX();
-        double zVel = 0.01 * out * TrackUtils.getTrackAdherence(standingOnMaterial) * diffMultiplier * d.getMushroomEffect() * v.getMaxSpeed() * l.getDirection().getZ();
+        double xVel = 0.01 * out * TrackUtils.getTrackAdherence(standingOnMaterial) * diffMultiplier * d.getBoost() * v.getMaxSpeed() * l.getDirection().getX();
+        double zVel = 0.01 * out * TrackUtils.getTrackAdherence(standingOnMaterial) * diffMultiplier * d.getBoost() * v.getMaxSpeed() * l.getDirection().getZ();
 
         e.setVelocity(new Vector(xVel, -0.2, zVel));
 

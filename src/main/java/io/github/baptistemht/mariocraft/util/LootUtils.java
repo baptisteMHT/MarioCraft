@@ -41,9 +41,9 @@ public class LootUtils {
             @Override
             public void run() {
                 for(int i = 1000; i>0; i--){
-                   pm.getPlayerData(id).setMushroomEffect(1 + i*0.0015);
+                   pm.getPlayerData(id).setBoost(1 + i*0.0015);
                 }
-                pm.getPlayerData(id).setMushroomEffect(1.0);
+                pm.getPlayerData(id).setBoost(1.0);
             }
         }.runTaskAsynchronously(MarioCraft.getInstance());
     }

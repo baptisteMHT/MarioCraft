@@ -10,7 +10,7 @@ public class PlayerData {
     private double laps;
     private Material lastCheckpoint;
     private int score;
-    private double mushroomEffect;
+    private double boost;
 
     public PlayerData(PlayerState state){
         this.state = state;
@@ -18,7 +18,7 @@ public class PlayerData {
         laps = 1.0;
         lastCheckpoint = null;
         score = 0;
-        mushroomEffect = 1.0;
+        boost = 1.0;
     }
 
     public void setVehicle(Vehicle vehicle) {
@@ -61,12 +61,12 @@ public class PlayerData {
         this.score = this.score + score;
     }
 
-    public double getMushroomEffect() {
-        return mushroomEffect;
+    public double getBoost() {
+        return boost;
     }
 
-    public void setMushroomEffect(double mushroomEffect) {
-        this.mushroomEffect = mushroomEffect;
+    public void setBoost(double boost) {
+        this.boost = boost;
     }
 
     public void cleanRaceData(){

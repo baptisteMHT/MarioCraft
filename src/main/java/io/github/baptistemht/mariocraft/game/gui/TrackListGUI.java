@@ -3,6 +3,7 @@ package io.github.baptistemht.mariocraft.game.gui;
 import io.github.baptistemht.mariocraft.MarioCraft;
 import io.github.baptistemht.mariocraft.track.Track;
 import org.bukkit.Bukkit;
+import org.bukkit.ChatColor;
 import org.bukkit.Material;
 import org.bukkit.entity.HumanEntity;
 import org.bukkit.inventory.Inventory;
@@ -29,8 +30,9 @@ public class TrackListGUI implements InventoryHolder {
         inv.clear();
 
         for(Track t : MarioCraft.getInstance().getTracksManager().getTracks()){
-            inv.addItem(createGuiItem(t.getSelector(), t.getName().replace("_", " ")));
+            inv.addItem(createGuiItem(t.getSelector(), t.getName().replace("_", " "), ChatColor.YELLOW + "" + t.getLaps() + ChatColor.GRAY +  " laps", "", ChatColor.GRAY + "Made by " + ChatColor.YELLOW + t.getAuthor()));
         }
+        inv.setItem(44, createGuiItem(Material.ENDER_EYE, ChatColor.RED + "Random Track"));
     }
 
     protected ItemStack createGuiItem(final Material material, final String name, final String... lore) {

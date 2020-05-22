@@ -2,17 +2,16 @@ package io.github.baptistemht.mariocraft.game.gui;
 
 import io.github.baptistemht.mariocraft.vehicle.Vehicle;
 import org.bukkit.Bukkit;
+import org.bukkit.ChatColor;
 import org.bukkit.Material;
 import org.bukkit.entity.HumanEntity;
-import org.bukkit.entity.Player;
-import org.bukkit.event.EventHandler;
-import org.bukkit.event.inventory.InventoryClickEvent;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.InventoryHolder;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
 
 import java.util.Arrays;
+import java.util.Calendar;
 
 public class VehicleSelectorGUI implements InventoryHolder {
 
@@ -31,7 +30,7 @@ public class VehicleSelectorGUI implements InventoryHolder {
 
     public void initializeItems() {
         for(Vehicle v : Vehicle.values()){
-            inv.addItem(createGuiItem(v.getSelector(), v.getName(), "Speed: " + (int) (v.getSpeed()*2) + "/5", "Weight: " + (int) (v.getWeight()*2) + "/5"));
+            inv.addItem(createGuiItem(v.getSelector(), v.getName(), ChatColor.GRAY + "Speed: " + ChatColor.YELLOW + v.getMaxSpeed(), ChatColor.GRAY + "Acceleration: " + ChatColor.YELLOW + v.getAcceleration()));
         }
     }
 

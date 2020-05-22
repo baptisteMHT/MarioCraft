@@ -81,22 +81,16 @@ public class GameListeners implements Listener {
                 e.disallow(PlayerLoginEvent.Result.KICK_OTHER, "Server not ready.");
                 break;
             case PRE_GAME:
-                if(instance.getPlayerManager().getPlayersData().size() < instance.getPlayerManager().getPlayerLimit()){
+                if((instance.getPlayerManager().getPlayersData().size() - 1) < instance.getPlayerManager().getPlayerLimit()){
                     instance.getPlayerManager().insertPlayerData(e.getPlayer().getUniqueId(), PlayerState.PLAYER);
-                }else if(instance.getPlayerManager().getSpecsData().size() < instance.getPlayerManager().getPlayerLimit()){
-                    instance.getPlayerManager().insertPlayerData(e.getPlayer().getUniqueId(), PlayerState.SPECTATOR);
                 }else {
-                    e.disallow(PlayerLoginEvent.Result.KICK_OTHER, "Server full.");
+                    instance.getPlayerManager().insertPlayerData(e.getPlayer().getUniqueId(), PlayerState.SPECTATOR);
                 }
                 break;
             case SELECTION:
             case RACING:
                 if(!instance.getPlayerManager().getPlayersData().containsKey(e.getPlayer().getUniqueId())){
-                    if(instance.getPlayerManager().getSpecsData().size() < instance.getPlayerManager().getSpecLimit()){
-                        instance.getPlayerManager().insertPlayerData(e.getPlayer().getUniqueId(), PlayerState.SPECTATOR);
-                    }else{
-                        e.disallow(PlayerLoginEvent.Result.KICK_OTHER, "Server full.");
-                    }
+                    instance.getPlayerManager().insertPlayerData(e.getPlayer().getUniqueId(), PlayerState.SPECTATOR);
                 }
                 break;
         }
@@ -105,7 +99,10 @@ public class GameListeners implements Listener {
     @EventHandler
     public void onJoin(PlayerJoinEvent e){
         if(instance.getPlayerManager().getPlayerData(e.getPlayer().getUniqueId()).getState() == PlayerState.PLAYER){
-            if(instance.getGameState() == GameState.RACING || instance.getGameState() == GameState.SELECTION)return;
+            if(instance.getGameState() == GameState.RACING || instance.getGameState() == GameState.SELECTION){
+                e.setJoinMessage(null);
+                return;
+            }
             e.getPlayer().setGameMode(GameMode.SURVIVAL);
             e.getPlayer().setTotalExperience(0);
             GameUtils.tpPlayerToLobby(e.getPlayer());
