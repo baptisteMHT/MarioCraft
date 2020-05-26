@@ -11,10 +11,13 @@ import io.github.baptistemht.mariocraft.game.player.PlayerData;
 import io.github.baptistemht.mariocraft.util.BoxUtils;
 import io.github.baptistemht.mariocraft.util.TrackUtils;
 import io.github.baptistemht.mariocraft.vehicle.Vehicle;
+import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.Player;
+import org.bukkit.potion.PotionEffect;
+import org.bukkit.potion.PotionEffectType;
 import org.bukkit.scheduler.BukkitRunnable;
 import org.bukkit.util.Vector;
 
@@ -23,32 +26,80 @@ import java.util.*;
 public class EntityController extends PacketAdapter {
 
     private final MarioCraft instance;
-    private final Map<Player, Location> lastBox;
 
     private double diffMultiplier = 0;
 
     private final Map<UUID, Integer> enginesRPM;
     private final Map<UUID, Integer> enginesThr;
 
+    private final Map<UUID, Location> lastBox;
+    private final Map<UUID, Location> lastLocation;
+
     public EntityController(MarioCraft plugin, ListenerPriority listenerPriority, PacketType... types) {
         super(plugin, listenerPriority, types);
+
         instance = plugin;
-        lastBox = new HashMap<>();
         enginesRPM = new HashMap<>();
         enginesThr = new HashMap<>();
+        lastBox = new HashMap<>();
+
+        lastLocation = new HashMap<>();
+
+        /*
+        new BukkitRunnable() {
+            @Override
+            public void run() {
+
+                if(instance.getGameState() != GameState.RACING)return;
+
+                for(UUID id : instance.getPlayerManager().getPlayersData().keySet()){
+                    Player p = Bukkit.getPlayer(id);
+                    if(lastLocation.containsKey(id)){
+                        Material trackCheckerMaterial = p.getVehicle().getWorld().getBlockAt(p.getVehicle().getLocation().getBlockX(), p.getVehicle().getLocation().getBlockY() -3, p.getVehicle().getLocation().getBlockZ()).getType();
+
+                        if(!trackCheckerMaterial.equals(Material.OBSIDIAN)){
+                            instance.getLogger().info("OUT");
+
+                            enginesRPM.replace(p.getUniqueId(), 0);
+
+                            new BukkitRunnable() {
+                                @Override
+                                public void run() {
+                                    PotionEffect effect = new PotionEffect(PotionEffectType.BLINDNESS, 40, 2, true, true);
+                                    p.addPotionEffect(effect);
+                                    p.getVehicle().teleport(lastLocation.get(p.getUniqueId()));
+                                    instance.getLogger().info(lastLocation.get(p.getUniqueId()).getBlockX() + " " + lastLocation.get(p.getUniqueId()).getBlockY() + " " + lastLocation.get(p.getUniqueId()).getBlockZ());
+                                }
+                            }.runTask(instance);
+
+                        }else{
+                            instance.getLogger().info("IN");
+
+                            lastLocation.remove(id);
+                            lastLocation.put(id, p.getLocation());
+                        }
+                    }else{
+                        lastLocation.put(id, p.getLocation());
+                    }
+                }
+
+            }
+        }.runTaskTimerAsynchronously(instance, 20L, 10L);
+
+         */
     }
 
     @Override
     public void onPacketReceiving(PacketEvent event) {
-        Player p = event.getPlayer();
-        PlayerData d = instance.getPlayerManager().getPlayerData(p.getUniqueId());
-        Location l = p.getLocation();
+        final Player p = event.getPlayer();
+        final PlayerData d = instance.getPlayerManager().getPlayerData(p.getUniqueId());
+        final Location l = p.getLocation();
 
-        Entity e = p.getVehicle();
-        Vehicle v = Vehicle.getVehicleFromEntityType(e.getType());
+        final Entity e = p.getVehicle();
+        final Vehicle v = Vehicle.getVehicleFromEntityType(e.getType());
 
-        Material standingOnMaterial = e.getWorld().getBlockAt(e.getLocation().getBlockX(), e.getLocation().getBlockY() -1, e.getLocation().getBlockZ()).getType();
-        Material deepMaterial = e.getWorld().getBlockAt(e.getLocation().getBlockX(), e.getLocation().getBlockY() -2, e.getLocation().getBlockZ()).getType();
+        final Material standingOnMaterial = e.getWorld().getBlockAt(e.getLocation().getBlockX(), e.getLocation().getBlockY() -1, e.getLocation().getBlockZ()).getType();
+        final Material deepMaterial = e.getWorld().getBlockAt(e.getLocation().getBlockX(), e.getLocation().getBlockY() -2, e.getLocation().getBlockZ()).getType();
 
         WrapperPlayClientSteerVehicle wrapper = new WrapperPlayClientSteerVehicle(event.getPacket());
 
@@ -80,9 +131,9 @@ public class EntityController extends PacketAdapter {
             enginesThr.replace(p.getUniqueId(), 0);
 
             if(out > 0){
-                out = enginesRPM.get(p.getUniqueId()) - 5;
+                out = enginesRPM.get(p.getUniqueId()) - 4;
             }else if(out < 0){
-                out = enginesRPM.get(p.getUniqueId()) + 5;
+                out = enginesRPM.get(p.getUniqueId()) + 4;
             }
 
             if(out < 5 && out > -5){
@@ -99,7 +150,7 @@ public class EntityController extends PacketAdapter {
 
         enginesRPM.replace(p.getUniqueId(), out);
 
-        instance.getLogger().info("Throttle: " + enginesThr.get(p.getUniqueId()) + " || RPM: " + out);
+        //instance.getLogger().info("Id: " + p.getUniqueId() + " || Throttle: " + enginesThr.get(p.getUniqueId()) + " || RPM: " + out);
 
 
 
@@ -122,6 +173,18 @@ public class EntityController extends PacketAdapter {
 
 
 
+        //CHECKPOINT DETECTION
+        if(deepMaterial == Material.BLACK_CONCRETE || deepMaterial == Material.YELLOW_CONCRETE){
+            if(d.getLastCheckpoint() == null && d.getLaps() == 1.0){
+                d.setLastCheckpoint(deepMaterial);
+            }else if(deepMaterial != d.getLastCheckpoint()){
+                d.incrLaps();
+                d.setLastCheckpoint(deepMaterial);
+            }
+        }
+
+
+
         //BOX DETECTION
         for(int x = l.getBlockX() - 1; x <= l.getBlockX() + 1; x++) {
             for(int y = l.getBlockY(); y <= l.getBlockY() + 1; y++) {
@@ -130,12 +193,12 @@ public class EntityController extends PacketAdapter {
                     Entity box = BoxUtils.getBox(x, z);
 
                     if(box != null){
-                        if(!lastBox.containsKey(p) || (lastBox.containsKey(p) && x != lastBox.get(p).getBlockX() && z != lastBox.get(p).getBlockZ())){
+                        if(!lastBox.containsKey(p.getUniqueId()) || (lastBox.containsKey(p.getUniqueId()) && x != lastBox.get(p.getUniqueId()).getBlockX() && z != lastBox.get(p.getUniqueId()).getBlockZ())){
 
                             final int x1 = x, y1 = y, z1 = z;
 
-                            lastBox.remove(p);
-                            lastBox.put(p, box.getLocation());
+                            lastBox.remove(p.getUniqueId());
+                            lastBox.put(p.getUniqueId(), box.getLocation());
 
                             BoxUtils.loot(p);
 
@@ -143,7 +206,7 @@ public class EntityController extends PacketAdapter {
                             new BukkitRunnable() {
                                 @Override
                                 public void run() {
-                                    lastBox.remove(p);
+                                    lastBox.remove(p.getUniqueId());
                                     BoxUtils.generateBox(new Location(p.getWorld(), x1, y1, z1));
                                 }
                             }.runTaskLater(instance, 100L);
@@ -151,17 +214,6 @@ public class EntityController extends PacketAdapter {
                         }
                     }
                 }
-            }
-        }
-
-
-        //CHECKPOINT DETECTION
-        if(deepMaterial == Material.BLACK_CONCRETE || deepMaterial == Material.YELLOW_CONCRETE){
-            if(d.getLastCheckpoint() == null && d.getLaps() == 1.0){
-                d.setLastCheckpoint(deepMaterial);
-            }else if(deepMaterial != d.getLastCheckpoint()){
-                d.incrLaps();
-                d.setLastCheckpoint(deepMaterial);
             }
         }
 

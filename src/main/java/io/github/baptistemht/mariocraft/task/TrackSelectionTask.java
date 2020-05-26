@@ -3,6 +3,7 @@ package io.github.baptistemht.mariocraft.task;
 import io.github.baptistemht.mariocraft.MarioCraft;
 import io.github.baptistemht.mariocraft.track.Track;
 import io.github.baptistemht.mariocraft.util.GameUtils;
+import io.github.baptistemht.mariocraft.util.MessageUtils;
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.entity.Player;
@@ -24,11 +25,12 @@ public class TrackSelectionTask {
         m.setDisplayName("Track selector");
         s.setItemMeta(m);
 
-        for(UUID id : instance.getPlayerManager().getPlayersData().keySet()){
+        for(UUID id : ids){
             Bukkit.getPlayer(id).getInventory().addItem(s);
         }
-
-        Bukkit.broadcastMessage("[MarioCraft] Choose a track!");
+        Bukkit.broadcastMessage("");
+        Bukkit.broadcastMessage(MessageUtils.getPrefix() + "Choose a track!");
+        Bukkit.broadcastMessage("");
 
         new BukkitRunnable() {
             @Override
@@ -37,7 +39,9 @@ public class TrackSelectionTask {
 
                     final Track t = instance.getTracksManager().getTracks().get(new Random().nextInt(instance.getTracksManager().getVotedTracks().size()));
 
-                    Bukkit.broadcastMessage("[MarioCraft] Everyone chose a track! Selected track: " + t.getName().replace("_", " "));
+                    Bukkit.broadcastMessage("");
+                    Bukkit.broadcastMessage(MessageUtils.getPrefix() + "Selected track: " + t.getName().replace("_", " "));
+                    Bukkit.broadcastMessage("");
 
                     instance.getTracksManager().getVotedTracks().clear();
 
@@ -56,7 +60,7 @@ public class TrackSelectionTask {
 
                             new RaceTask(instance, t);
                         }
-                    }.runTaskLater(instance, 40L);
+                    }.runTaskLater(instance, 50L);
 
                     this.cancel();
                 }

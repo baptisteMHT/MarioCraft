@@ -1,8 +1,8 @@
 package io.github.baptistemht.mariocraft.task;
 
 import io.github.baptistemht.mariocraft.MarioCraft;
+import io.github.baptistemht.mariocraft.util.MessageUtils;
 import org.bukkit.Bukkit;
-import org.bukkit.Chunk;
 import org.bukkit.Material;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
@@ -28,7 +28,7 @@ public class VehicleSelectorTask {
             Bukkit.getPlayer(id).getInventory().addItem(s);
         }
 
-        Bukkit.broadcastMessage("[MarioCraft] Choose your kart!");
+        Bukkit.broadcastMessage(MessageUtils.getPrefix() + "Choose your kart!");
 
         new BukkitRunnable() {
             @Override
@@ -40,8 +40,6 @@ public class VehicleSelectorTask {
                     }
                 }
                 if (i == ids.size()) {
-
-                    Bukkit.broadcastMessage("[MarioCraft] Everyone chose a kart!");
 
                     for (Player p : Bukkit.getOnlinePlayers()) {
                         p.getInventory().clear();

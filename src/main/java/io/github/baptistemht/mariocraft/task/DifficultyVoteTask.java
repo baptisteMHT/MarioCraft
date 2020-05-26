@@ -2,6 +2,7 @@ package io.github.baptistemht.mariocraft.task;
 
 import io.github.baptistemht.mariocraft.MarioCraft;
 import io.github.baptistemht.mariocraft.game.GameDifficulty;
+import io.github.baptistemht.mariocraft.util.MessageUtils;
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.entity.Player;
@@ -31,7 +32,7 @@ public class DifficultyVoteTask {
             Bukkit.getPlayer(id).getInventory().addItem(s);
         }
 
-        Bukkit.broadcastMessage("Difficulty vote started! 60 seconds before the vote closes.");
+        Bukkit.broadcastMessage(MessageUtils.getPrefix() + "Difficulty vote started! 60 seconds before the vote closes.");
 
         i = 60;
 
@@ -75,7 +76,7 @@ public class DifficultyVoteTask {
 
         int largest = Collections.max(Arrays.asList(a, b, c, d));
 
-        if(largest != 0){
+        if(largest > 0){
             if(largest == a){
                 instance.setDifficulty(GameDifficulty.EASY);
             }else if(largest == b){
@@ -89,7 +90,7 @@ public class DifficultyVoteTask {
             instance.setDifficulty(GameDifficulty.NORMAL);
         }
 
-        Bukkit.broadcastMessage("[MarioCraft] Vote closed! Difficulty set to " + instance.getDifficulty().getName());
+        Bukkit.broadcastMessage(MessageUtils.getPrefix() + "Vote closed! Difficulty set to " + instance.getDifficulty().getName());
 
         new VehicleSelectorTask(instance);
     }

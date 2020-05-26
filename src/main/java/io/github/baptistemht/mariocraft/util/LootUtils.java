@@ -1,14 +1,19 @@
 package io.github.baptistemht.mariocraft.util;
 
 import io.github.baptistemht.mariocraft.MarioCraft;
+import io.github.baptistemht.mariocraft.controller.ShellBrain;
 import io.github.baptistemht.mariocraft.game.BoxLoot;
 import io.github.baptistemht.mariocraft.game.player.PlayerManager;
 import io.github.baptistemht.mariocraft.game.player.PlayerState;
 import org.bukkit.Bukkit;
+import org.bukkit.block.PistonMoveReaction;
+import org.bukkit.entity.Entity;
+import org.bukkit.entity.EntityType;
 import org.bukkit.entity.Player;
 import org.bukkit.potion.PotionEffect;
 import org.bukkit.potion.PotionEffectType;
 import org.bukkit.scheduler.BukkitRunnable;
+import org.bukkit.util.Vector;
 
 import java.util.UUID;
 
@@ -53,11 +58,25 @@ public class LootUtils {
     }
 
     private static void greenShellExecutor(Player sender){
-
+        new ShellBrain(
+                sender.getWorld().spawnEntity(sender.getLocation(),
+                EntityType.SILVERFISH),
+                sender.getVehicle().getVelocity(),
+                false,
+                sender.getLocation().getYaw(),
+                sender.getLocation().getPitch()
+        );
     }
 
     private static void redShellExecutor(Player sender){
-
+        new ShellBrain(
+                sender.getWorld().spawnEntity(sender.getLocation(),
+                EntityType.SILVERFISH),
+                sender.getVehicle().getVelocity(),
+                true,
+                sender.getLocation().getYaw(),
+                sender.getLocation().getPitch()
+        );
     }
 
     private static void squidExecutor(Player sender){

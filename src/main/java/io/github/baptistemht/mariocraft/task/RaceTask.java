@@ -5,11 +5,13 @@ import io.github.baptistemht.mariocraft.game.GameState;
 import io.github.baptistemht.mariocraft.game.player.PlayerData;
 import io.github.baptistemht.mariocraft.track.Track;
 import io.github.baptistemht.mariocraft.util.GameUtils;
+import io.github.baptistemht.mariocraft.util.MessageUtils;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.entity.Player;
 import org.bukkit.scheduler.BukkitRunnable;
 
+import java.text.SimpleDateFormat;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
@@ -46,11 +48,11 @@ public class RaceTask {
             @Override
             public void run() {
                 if(countdown == 6){
-                    sendTitle(ChatColor.GREEN + t.getName(), ChatColor.GRAY + "" +  t.getLaps() + " laps | " + instance.getDifficulty().getName(), 50);
+                    MessageUtils.sendTitleToPlayers(ChatColor.GREEN + t.getName(), ChatColor.GRAY + "" +  t.getLaps() + " laps | " + instance.getDifficulty().getName(), 50);
                 }else if(countdown <= 3 && countdown > 0){
-                    sendTitle(ChatColor.YELLOW + "" + countdown, null, 20);
+                    MessageUtils.sendTitleToPlayers(ChatColor.YELLOW + "" + countdown, null, 20);
                 }else if(countdown == 0){
-                    sendTitle(ChatColor.YELLOW + "GO!", null, 20);
+                    MessageUtils.sendTitleToPlayers(ChatColor.YELLOW + "GO!", null, 20);
                     instance.setGameState(GameState.RACING);
                     clock();
                     this.cancel();
@@ -91,7 +93,7 @@ public class RaceTask {
                             raceData.put(id.toString() + ":lapTime:" + l, lapTime + "");
                             raceData.replace(id.toString() + ":elapsedTime", (System.currentTimeMillis() - time) + "");
 
-                            sendTitle(id," ", "Lap " + Math.round(l) +  "/" + t.getLaps() + " | " + lapTime, 20); //ADD FORMAT AND COLOR
+                            MessageUtils.sendTitle(id," ", "Lap " + Math.round(l) +  "/" + t.getLaps() + " | " + formatTime(lapTime), 40); //ADD FORMAT AND COLOR
                         }
 
 
@@ -99,10 +101,10 @@ public class RaceTask {
                             raceData.put(id.toString() + ":time", (System.currentTimeMillis() - time) + "");
                             finishers.add(id);
                             d.cleanRaceData();
-                            sendTitle(id,ChatColor.YELLOW + "FINISH LINE", ChatColor.WHITE + "You are " + ChatColor.YELLOW + "" +finishers.size() + ChatColor.WHITE + "/" + pilots.size(), 100);
+                            MessageUtils.sendTitle(id,ChatColor.YELLOW + "FINISH LINE", ChatColor.WHITE + "You are " + ChatColor.YELLOW + "" +finishers.size() + ChatColor.WHITE + "/" + pilots.size(), 100);
 
                             if(finishers.size() >= pilots.size()){
-                                Bukkit.broadcastMessage("[MarioCraft] " + Bukkit.getPlayer(finishers.get(0)).getDisplayName() + " won the race!");
+                                Bukkit.broadcastMessage(MessageUtils.getPrefix() + ChatColor.GOLD + "" + Bukkit.getPlayer(finishers.get(0)).getDisplayName() + ChatColor.GRAY + " won the race!");
 
                                 instance.updateRaceCount();
 
@@ -133,14 +135,9 @@ public class RaceTask {
         }.runTaskTimerAsynchronously(instance, 0L, 2L);
     }
 
-    private void sendTitle(UUID id, String title, String subtitle, int duration){
-        Player p = Bukkit.getPlayer(id);
-        if(p != null) p.sendTitle(title, subtitle, 2, duration, 2);
-    }
-
-    private void sendTitle(String title, String subtitle, int duration){
-        for(UUID id : pilots){
-            sendTitle(id, title, subtitle, duration);
-        }
+    private String formatTime(long time){
+        SimpleDateFormat format = new SimpleDateFormat("mm:ss:SSS");
+        Date d = new Date(time);
+        return format.format(d);
     }
 }

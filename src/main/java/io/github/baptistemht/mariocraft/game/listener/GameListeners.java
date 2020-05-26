@@ -6,6 +6,9 @@ import io.github.baptistemht.mariocraft.game.GameState;
 import io.github.baptistemht.mariocraft.game.player.PlayerState;
 import io.github.baptistemht.mariocraft.util.GameUtils;
 import io.github.baptistemht.mariocraft.util.LootUtils;
+import io.github.baptistemht.mariocraft.util.MessageUtils;
+import org.bukkit.Bukkit;
+import org.bukkit.ChatColor;
 import org.bukkit.GameMode;
 import org.bukkit.Material;
 import org.bukkit.entity.Player;
@@ -32,7 +35,7 @@ public class GameListeners implements Listener {
         ItemStack s = e.getItem();
         Player p = e.getPlayer();
 
-        if(action == Action.RIGHT_CLICK_AIR || action == Action.RIGHT_CLICK_BLOCK){
+        if(action == Action.RIGHT_CLICK_AIR || action == Action.RIGHT_CLICK_BLOCK || action == Action.LEFT_CLICK_AIR || action == Action.LEFT_CLICK_BLOCK){
 
             if(s == null)return;
 
@@ -81,7 +84,7 @@ public class GameListeners implements Listener {
                 e.disallow(PlayerLoginEvent.Result.KICK_OTHER, "Server not ready.");
                 break;
             case PRE_GAME:
-                if((instance.getPlayerManager().getPlayersData().size() - 1) < instance.getPlayerManager().getPlayerLimit()){
+                if(instance.getPlayerManager().getPlayersData().size() < instance.getPlayerManager().getPlayerLimit()){
                     instance.getPlayerManager().insertPlayerData(e.getPlayer().getUniqueId(), PlayerState.PLAYER);
                 }else {
                     instance.getPlayerManager().insertPlayerData(e.getPlayer().getUniqueId(), PlayerState.SPECTATOR);
@@ -104,17 +107,37 @@ public class GameListeners implements Listener {
                 return;
             }
             e.getPlayer().setGameMode(GameMode.SURVIVAL);
-            e.getPlayer().setTotalExperience(0);
-            GameUtils.tpPlayerToLobby(e.getPlayer());
 
-            e.setJoinMessage("[MarioCraft] " + e.getPlayer().getName() + " joined the game! [" + instance.getPlayerManager().getPlayersData().size() + "/" + instance.getPlayerManager().getPlayerLimit()+ "]");
+            e.setJoinMessage(MessageUtils.getPrefix() + e.getPlayer().getName() + " joined the game! [" + instance.getPlayerManager().getPlayersData().size() + "/" + instance.getPlayerManager().getPlayerLimit()+ "]");
+            MessageUtils.sendTitle(e.getPlayer().getUniqueId(), ChatColor.YELLOW + "Welcome to " + ChatColor.RED + "MarioCraft" , ChatColor.GRAY + "Made by " + ChatColor.WHITE + "Arakite", 50);
         } else{
             e.getPlayer().setGameMode(GameMode.SPECTATOR);
+            e.getPlayer().sendMessage("");
+            e.getPlayer().sendMessage(ChatColor.GRAY + "==============================================================");
+            e.getPlayer().sendMessage(ChatColor.YELLOW + "               Welcome to " + ChatColor.BOLD + "" + ChatColor.RED+ "MarioCraft"+ ChatColor.YELLOW + "! You are in " + ChatColor.RED + "spectator mode.      ");
+            e.getPlayer().sendMessage("");
+            e.getPlayer().sendMessage(ChatColor.YELLOW + "You can only communicate with" + ChatColor.RED + " the other spectators.");
+            e.getPlayer().sendMessage("");
+            e.getPlayer().sendMessage(ChatColor.YELLOW + "Bet for the winner using the following command:");
+            e.getPlayer().sendMessage(ChatColor.RED + "/bet <amount> <player>");
+            e.getPlayer().sendMessage("");
+            e.getPlayer().sendMessage(ChatColor.YELLOW + "Make sure to read the rule using /rules to get more information.");
+            e.getPlayer().sendMessage("");
+            e.getPlayer().sendMessage(ChatColor.YELLOW + "                           Enjoy watching the game!                   ");
+            e.getPlayer().sendMessage(ChatColor.GRAY + "==============================================================");
+            e.getPlayer().sendMessage("");
             e.setJoinMessage(null);
         }
 
-        e.getPlayer().getInventory().clear();
         if(e.getPlayer().isInsideVehicle()) e.getPlayer().leaveVehicle();
+
+        e.getPlayer().getInventory().clear();
+        e.getPlayer().setFireTicks(0);
+        e.getPlayer().setExp(0);
+        e.getPlayer().setFoodLevel(20);
+        e.getPlayer().setHealth(e.getPlayer().getHealthScale());
+
+        GameUtils.tpPlayerToLobby(e.getPlayer());
     }
 
     @EventHandler
@@ -134,4 +157,5 @@ public class GameListeners implements Listener {
 
         e.getPlayer().leaveVehicle();
     }
+
 }

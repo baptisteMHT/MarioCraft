@@ -3,7 +3,6 @@ package io.github.baptistemht.mariocraft.game.gui;
 import io.github.baptistemht.mariocraft.MarioCraft;
 import io.github.baptistemht.mariocraft.game.GameDifficulty;
 import io.github.baptistemht.mariocraft.vehicle.Vehicle;
-import org.bukkit.ChatColor;
 import org.bukkit.Material;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
@@ -49,7 +48,6 @@ public class GUIListeners implements Listener {
         }
 
         p.closeInventory();
-        p.sendMessage("You chose: " + s.getItemMeta().getDisplayName());
         p.getInventory().remove(p.getInventory().getItemInMainHand());
         p.updateInventory();
     }

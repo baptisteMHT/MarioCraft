@@ -1,13 +1,14 @@
 package io.github.baptistemht.mariocraft.game;
 
+import org.bukkit.ChatColor;
 import org.bukkit.Material;
 
 public enum GameDifficulty {
 
-    EASY("50CC", 0.5, Material.IRON_BLOCK),
-    NORMAL("100CC", 0.65, Material.GOLD_BLOCK),
-    HARD("150CC", 0.8, Material.DIAMOND_BLOCK),
-    EXTREME("200CC", 1, Material.EMERALD_BLOCK);
+    EASY(ChatColor.AQUA + "50CC", 0.5, Material.IRON_BLOCK),
+    NORMAL(ChatColor.BLUE + "100CC", 0.65, Material.GOLD_BLOCK),
+    HARD(ChatColor.GREEN + "150CC", 0.8, Material.DIAMOND_BLOCK),
+    EXTREME(ChatColor.GOLD + "200CC", 1, Material.EMERALD_BLOCK);
 
     final String name;
     final double multiplier;

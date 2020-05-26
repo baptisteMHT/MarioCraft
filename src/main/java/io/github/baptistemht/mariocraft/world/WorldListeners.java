@@ -26,9 +26,7 @@ public class WorldListeners implements Listener {
     }
 
     @EventHandler
-    public void onPlayerDamage(EntityDamageEvent e){
-        if(e.getEntity() instanceof Player){
-            e.setCancelled(true);
-        }
+    public void onPlayerDamage(EntityDamageEvent e) {
+        e.setCancelled(true);
     }
 }

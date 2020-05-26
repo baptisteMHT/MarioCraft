@@ -1,6 +1,5 @@
 package io.github.baptistemht.mariocraft.game.player;
 
-import io.github.baptistemht.mariocraft.MarioCraft;
 import org.bukkit.entity.Player;
 
 import java.util.HashMap;
@@ -9,15 +8,11 @@ import java.util.UUID;
 
 public class PlayerManager {
 
-    private MarioCraft instance;
-    private Map<UUID, PlayerData> data;
+    private final Map<UUID, PlayerData> data;
     private int playerLimit;
-    private int specLimit;
 
-    public PlayerManager(MarioCraft instance, int playerLimit, int specLimit){
-        this.instance = instance;
+    public PlayerManager(int playerLimit){
         this.playerLimit = playerLimit;
-        this.specLimit = specLimit;
         data = new HashMap<>();
     }
 
@@ -49,20 +44,12 @@ public class PlayerManager {
         return d;
     }
 
-    public Map<UUID, PlayerData> getSpecsData(){
+    public Map<UUID, PlayerData> getSpecsData() {
         Map<UUID, PlayerData> d = new HashMap<>();
-        for(UUID id : data.keySet()){
-            if(data.get(id).getState() == PlayerState.SPECTATOR) d.put(id, data.get(id));
+        for (UUID id : data.keySet()) {
+            if (data.get(id).getState() == PlayerState.SPECTATOR) d.put(id, data.get(id));
         }
         return d;
-    }
-
-    public int getSpecLimit() {
-        return specLimit;
-    }
-
-    public void setSpecLimit(int specLimit) {
-        this.specLimit = specLimit;
     }
 
 
