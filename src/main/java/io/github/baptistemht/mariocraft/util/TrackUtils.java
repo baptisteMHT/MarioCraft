@@ -12,7 +12,7 @@ public class TrackUtils {
             case GRAVEL:
             case DIRT:
             case GREEN_CONCRETE:
-                return 0.92;
+                return 0.9;
 
             case GOLD_BLOCK:
                 return 1.5;

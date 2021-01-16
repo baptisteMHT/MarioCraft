@@ -42,13 +42,13 @@ public class RaceTask {
 
         pilots.addAll(instance.getPlayerManager().getPlayersData().keySet());
 
-        countdown = 6;
+        countdown = 10;
 
         new BukkitRunnable() {
             @Override
             public void run() {
-                if(countdown == 6){
-                    MessageUtils.sendTitleToPlayers(ChatColor.GREEN + t.getName(), ChatColor.GRAY + "" +  t.getLaps() + " laps | " + instance.getDifficulty().getName(), 50);
+                if(countdown == 10){
+                    MessageUtils.sendTitleToPlayers(ChatColor.GREEN + t.getName(), ChatColor.GRAY + "" +  t.getLaps() + " laps | " + instance.getDifficulty().getName(), 80);
                 }else if(countdown <= 3 && countdown > 0){
                     MessageUtils.sendTitleToPlayers(ChatColor.YELLOW + "" + countdown, null, 20);
                 }else if(countdown == 0){
@@ -63,15 +63,12 @@ public class RaceTask {
         }.runTaskTimer(instance, 20L, 20L);
     }
 
-    private void registerRaceData(){
-        //REDIS PUSH
-    }
 
     private void clock(){
         time = System.currentTimeMillis();
         for(UUID id : pilots){
-            raceData.put(id.toString() + ":lap", 1.0 + "");
-            raceData.put(id.toString() + ":elapsedTime", 0 + "");
+            raceData.put(id.toString() + ":lap", 1 + "");
+            raceData.put(id.toString() + ":elapsedTime", time + "");
         }
 
         new BukkitRunnable() {
@@ -82,57 +79,66 @@ public class RaceTask {
                     PlayerData d = instance.getPlayerManager().getPlayerData(id);
 
                     if(!finishers.contains(id)){
-                        double l = d.getLaps();
+                        int l = d.getLaps();
 
-                        if(l == (Double.parseDouble(raceData.get(id.toString() + ":lap")) + 1.0)){
+                        if(l > Integer.parseInt(raceData.get(id.toString() + ":lap"))){
                             raceData.replace(id.toString() + ":lap", l + "");
 
                             long lastElapsedTime = Long.parseLong(raceData.get(id.toString() + ":elapsedTime"));
                             long lapTime = System.currentTimeMillis() - lastElapsedTime;
 
                             raceData.put(id.toString() + ":lapTime:" + l, lapTime + "");
-                            raceData.replace(id.toString() + ":elapsedTime", (System.currentTimeMillis() - time) + "");
+                            raceData.replace(id.toString() + ":elapsedTime", System.currentTimeMillis() + "");
 
-                            MessageUtils.sendTitle(id," ", "Lap " + Math.round(l) +  "/" + t.getLaps() + " | " + formatTime(lapTime), 40); //ADD FORMAT AND COLOR
-                        }
-
-
-                        if(l == (t.getLaps() + 1.0)){
-                            raceData.put(id.toString() + ":time", (System.currentTimeMillis() - time) + "");
-                            finishers.add(id);
-                            d.cleanRaceData();
-                            MessageUtils.sendTitle(id,ChatColor.YELLOW + "FINISH LINE", ChatColor.WHITE + "You are " + ChatColor.YELLOW + "" +finishers.size() + ChatColor.WHITE + "/" + pilots.size(), 100);
-
-                            if(finishers.size() >= pilots.size()){
-                                Bukkit.broadcastMessage(MessageUtils.getPrefix() + ChatColor.GOLD + "" + Bukkit.getPlayer(finishers.get(0)).getDisplayName() + ChatColor.GRAY + " won the race!");
-
-                                instance.updateRaceCount();
-
-                                new BukkitRunnable() {
-                                    @Override
-                                    public void run() {
-                                        if(instance.getRaceCount() > 0){
-                                            instance.setGameState(GameState.SELECTION);
-                                            GameUtils.tpAllToLobby();
-                                            t.reset();
-                                            new TrackSelectionTask(instance);
-                                        }else{
-                                            //finish
-                                        }
-
-                                    }
-                                }.runTaskLater(instance, 160L);
-
-                                registerRaceData();
-
-                                this.cancel();
+                            if(l < t.getLaps()+1){
+                                MessageUtils.sendTitle(id," ", "Lap " + l +  "/" + t.getLaps() + " | " + formatTime(lapTime), 50); //ADD FORMAT AND COLOR
                             }
                         }
+
+
+                        if(l == t.getLaps() + 1){
+                            raceData.put(id.toString() + ":time", (System.currentTimeMillis() - time) + "");
+                            finishers.add(id);
+                            MessageUtils.sendTitle(id,ChatColor.YELLOW + "FINISH LINE", ChatColor.WHITE + "You are "+ finishers.size() + "/" + pilots.size() + " | " + formatTime(Long.parseLong(raceData.get(id + ":time"))), 100);
+                        }
                     }
+                }
+
+                if(finishers.size() == pilots.size()){
+                    Bukkit.broadcastMessage(MessageUtils.getPrefix() + ChatColor.GOLD + "" + Bukkit.getPlayer(finishers.get(0)).getDisplayName() + ChatColor.GRAY + " won the race in " + formatTime(Long.parseLong(raceData.get(finishers.get(0).toString() + ":time"))) +" !");
+
+                    instance.updateRaceCount();
+
+                    new BukkitRunnable() {
+                        @Override
+                        public void run() {
+                            for(UUID id : pilots){
+                                instance.getPlayerManager().getPlayerData(id).cleanRaceData();
+                            }
+                            GameUtils.tpAllToLobby();
+                            t.reset();
+                            if(instance.getRaceCount() == 0){
+                                instance.setGameState(GameState.SELECTION);
+                                new TrackSelectionTask(instance);
+                            }else{
+                                //finish
+                                instance.setGameState(GameState.POST_GAME);
+                            }
+
+                        }
+                    }.runTaskLater(instance, 160L);
+
+                    registerRaceData();
+
+                    this.cancel();
                 }
             }
 
         }.runTaskTimerAsynchronously(instance, 0L, 2L);
+    }
+
+    private void registerRaceData(){
+        //DATABASE PUSH
     }
 
     private String formatTime(long time){

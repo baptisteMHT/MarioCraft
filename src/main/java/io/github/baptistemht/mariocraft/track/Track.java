@@ -48,7 +48,6 @@ public class Track {
                 for(Entity e : world.getEntities()){
                     if(e.getType() == EntityType.ARMOR_STAND){
                         boxes.add(e.getLocation());
-                        MarioCraft.getInstance().getLogger().log(Level.INFO, "[TrackLoader:" + name + "] Box found. (" + e.getLocation().getBlockX() + ";" + e.getLocation().getBlockY() + ";" + e.getLocation().getBlockZ() + ")");
                         e.remove();
                         i++;
                     }
@@ -70,7 +69,11 @@ public class Track {
     }
 
     public void reset(){
-
+        BoxUtils.resetBoxes(this);
+        for(Entity e : world.getEntities()){
+            if(e.getType() != EntityType.ARMOR_STAND) e.remove();
+        }
+        load();
     }
 
     public String getName() {

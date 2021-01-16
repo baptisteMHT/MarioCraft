@@ -1,13 +1,14 @@
 package io.github.baptistemht.mariocraft.game;
 
+import org.bukkit.ChatColor;
 import org.bukkit.Material;
 
 public enum BoxLoot {
-    MUSHROOM("Mushroom", Material.RED_MUSHROOM_BLOCK),
-    GREEN_SHELL("Green Shell", Material.GREEN_CONCRETE),
-    RED_SHELL("Red Shell", Material.RED_CONCRETE),
-    BANANA("Banana", Material.YELLOW_DYE),
-    SQUID("Squid", Material.INK_SAC);
+    MUSHROOM(ChatColor.BLUE + "Mushroom", Material.RED_MUSHROOM_BLOCK),
+    GREEN_SHELL(ChatColor.GREEN + "Green Shell", Material.GREEN_CONCRETE),
+    RED_SHELL(ChatColor.RED + "Red Shell", Material.RED_CONCRETE),
+    BANANA(ChatColor.YELLOW + "Banana", Material.YELLOW_CARPET),
+    SQUID(ChatColor.BLACK + "Squid", Material.INK_SAC);
 
     final String name;
     final Material material;

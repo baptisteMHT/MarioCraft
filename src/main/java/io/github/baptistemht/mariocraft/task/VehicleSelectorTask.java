@@ -51,7 +51,7 @@ public class VehicleSelectorTask {
                     this.cancel();
                 }
             }
-        }.runTaskTimer(instance, 0L, 10L);
+        }.runTaskTimer(instance, 0L, 20L);
 
     }
 

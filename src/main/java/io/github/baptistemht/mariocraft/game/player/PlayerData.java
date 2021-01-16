@@ -7,7 +7,7 @@ public class PlayerData {
 
     private Vehicle vehicle;
     private PlayerState state;
-    private double laps;
+    private int laps;
     private Material lastCheckpoint;
     private int score;
     private double boost;
@@ -15,7 +15,7 @@ public class PlayerData {
     public PlayerData(PlayerState state){
         this.state = state;
         vehicle = null;
-        laps = 1.0;
+        laps = 0;
         lastCheckpoint = null;
         score = 0;
         boost = 1.0;
@@ -37,20 +37,22 @@ public class PlayerData {
         return state;
     }
 
-    public void incrLaps() {
-        this.laps = laps + 0.5;
+    public void updateCheckpoint(Material checkpoint){
+
+        if(checkpoint == lastCheckpoint
+                || checkpoint == Material.YELLOW_CONCRETE && lastCheckpoint != Material.RED_CONCRETE
+                || checkpoint == Material.BLUE_CONCRETE && lastCheckpoint != Material.YELLOW_CONCRETE
+                || checkpoint == Material.GREEN_CONCRETE && lastCheckpoint != Material.BLUE_CONCRETE) return;
+
+        if(checkpoint == Material.RED_CONCRETE && lastCheckpoint == null) laps = 1;
+
+        if(checkpoint == Material.RED_CONCRETE && lastCheckpoint == Material.GREEN_CONCRETE) laps++;
+
+        lastCheckpoint = checkpoint;
     }
 
-    public double getLaps() {
+    public int getLaps() {
         return laps;
-    }
-
-    public void setLastCheckpoint(Material lastCheckpoint) {
-        this.lastCheckpoint = lastCheckpoint;
-    }
-
-    public Material getLastCheckpoint() {
-        return lastCheckpoint;
     }
 
     public int getScore() {
@@ -70,7 +72,7 @@ public class PlayerData {
     }
 
     public void cleanRaceData(){
-        laps = 1.0;
+        laps = 0;
         lastCheckpoint = null;
     }
 }

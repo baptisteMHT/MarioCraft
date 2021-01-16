@@ -11,13 +11,10 @@ import io.github.baptistemht.mariocraft.game.player.PlayerData;
 import io.github.baptistemht.mariocraft.util.BoxUtils;
 import io.github.baptistemht.mariocraft.util.TrackUtils;
 import io.github.baptistemht.mariocraft.vehicle.Vehicle;
-import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.Player;
-import org.bukkit.potion.PotionEffect;
-import org.bukkit.potion.PotionEffectType;
 import org.bukkit.scheduler.BukkitRunnable;
 import org.bukkit.util.Vector;
 
@@ -91,6 +88,7 @@ public class EntityController extends PacketAdapter {
 
     @Override
     public void onPacketReceiving(PacketEvent event) {
+
         final Player p = event.getPlayer();
         final PlayerData d = instance.getPlayerManager().getPlayerData(p.getUniqueId());
         final Location l = p.getLocation();
@@ -100,21 +98,24 @@ public class EntityController extends PacketAdapter {
 
         final Material standingOnMaterial = e.getWorld().getBlockAt(e.getLocation().getBlockX(), e.getLocation().getBlockY() -1, e.getLocation().getBlockZ()).getType();
         final Material deepMaterial = e.getWorld().getBlockAt(e.getLocation().getBlockX(), e.getLocation().getBlockY() -2, e.getLocation().getBlockZ()).getType();
+        final Material checkpointMaterial = e.getWorld().getBlockAt(e.getLocation().getBlockX(), e.getLocation().getBlockY() -3, e.getLocation().getBlockZ()).getType();
 
         WrapperPlayClientSteerVehicle wrapper = new WrapperPlayClientSteerVehicle(event.getPacket());
 
-        if(diffMultiplier == 0)diffMultiplier = instance.getDifficulty().getMultiplier();
+        //CANCEL UNMOUNT
+        if(wrapper.isUnmount()) wrapper.setUnmount(false);
+
+        //SET DIFFICULTY
+        if(diffMultiplier == 0) diffMultiplier = instance.getDifficulty().getMultiplier();
 
         //ENTITY ORIENTATION
         p.getVehicle().setRotation(p.getLocation().getYaw(), p.getLocation().getPitch());
 
-
-        if(instance.getGameState() != GameState.RACING) return;
-
         if(!enginesThr.containsKey(p.getUniqueId())) enginesThr.put(p.getUniqueId(), 0);
         if(!enginesRPM.containsKey(p.getUniqueId())) enginesRPM.put(p.getUniqueId(), 0);
 
-        int out = enginesRPM.get(p.getUniqueId());
+
+        int output = enginesRPM.get(p.getUniqueId());
 
         if(wrapper.getForward() > 0.1 || wrapper.getForward() < -0.1){
 
@@ -124,35 +125,31 @@ public class EntityController extends PacketAdapter {
                 enginesThr.replace(p.getUniqueId(), -1);
             }
 
-            out = enginesRPM.get(p.getUniqueId()) + (enginesThr.get(p.getUniqueId()) * v.getAcceleration());
+            output = enginesRPM.get(p.getUniqueId()) + (enginesThr.get(p.getUniqueId()) * v.getAcceleration());
 
         }else{
 
             enginesThr.replace(p.getUniqueId(), 0);
 
-            if(out > 0){
-                out = enginesRPM.get(p.getUniqueId()) - 4;
-            }else if(out < 0){
-                out = enginesRPM.get(p.getUniqueId()) + 4;
+            if(output > 0){
+                output = enginesRPM.get(p.getUniqueId()) - 4;
+            }else if(output < 0){
+                output = enginesRPM.get(p.getUniqueId()) + 4;
             }
 
-            if(out < 5 && out > -5){
-                out = 0;
+            if(output < 5 && output > -5){
+                output = 0;
             }
 
         }
 
-        if(out >= 100){
-            out = 99;
-        } else if(out <= -100){
-            out = -99;
+        if(output >= 100){
+            output = 99;
+        } else if(output <= -100){
+            output = -99;
         }
 
-        enginesRPM.replace(p.getUniqueId(), out);
-
-        //instance.getLogger().info("Id: " + p.getUniqueId() + " || Throttle: " + enginesThr.get(p.getUniqueId()) + " || RPM: " + out);
-
-
+        enginesRPM.replace(p.getUniqueId(), output);
 
 
 
@@ -162,25 +159,18 @@ public class EntityController extends PacketAdapter {
             //right
         }
 
+        if(instance.getGameState() != GameState.RACING) return;
 
-
-
-
-        double xVel = 0.01 * out * TrackUtils.getTrackAdherence(standingOnMaterial) * diffMultiplier * d.getBoost() * v.getMaxSpeed() * l.getDirection().getX();
-        double zVel = 0.01 * out * TrackUtils.getTrackAdherence(standingOnMaterial) * diffMultiplier * d.getBoost() * v.getMaxSpeed() * l.getDirection().getZ();
+        double xVel = 0.01 * output * TrackUtils.getTrackAdherence(standingOnMaterial) * diffMultiplier * d.getBoost() * v.getMaxSpeed() * l.getDirection().getX();
+        double zVel = 0.01 * output * TrackUtils.getTrackAdherence(standingOnMaterial) * diffMultiplier * d.getBoost() * v.getMaxSpeed() * l.getDirection().getZ();
 
         e.setVelocity(new Vector(xVel, -0.2, zVel));
 
 
-
         //CHECKPOINT DETECTION
-        if(deepMaterial == Material.BLACK_CONCRETE || deepMaterial == Material.YELLOW_CONCRETE){
-            if(d.getLastCheckpoint() == null && d.getLaps() == 1.0){
-                d.setLastCheckpoint(deepMaterial);
-            }else if(deepMaterial != d.getLastCheckpoint()){
-                d.incrLaps();
-                d.setLastCheckpoint(deepMaterial);
-            }
+
+        if(checkpointMaterial == Material.RED_CONCRETE || checkpointMaterial == Material.BLUE_CONCRETE || checkpointMaterial == Material.YELLOW_CONCRETE || checkpointMaterial == Material.GREEN_CONCRETE){
+            d.updateCheckpoint(checkpointMaterial);
         }
 
 

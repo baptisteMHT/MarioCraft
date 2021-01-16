@@ -5,7 +5,6 @@ import com.comphenix.protocol.ProtocolLibrary;
 import com.comphenix.protocol.events.ListenerPriority;
 import io.github.baptistemht.mariocraft.command.StartCommand;
 import io.github.baptistemht.mariocraft.controller.EntityController;
-import io.github.baptistemht.mariocraft.controller.listener.ControllerListeners;
 import io.github.baptistemht.mariocraft.game.GameDifficulty;
 import io.github.baptistemht.mariocraft.game.GameState;
 import io.github.baptistemht.mariocraft.game.gui.DifficultySelectorGUI;
@@ -34,7 +33,7 @@ public class MarioCraft extends JavaPlugin {
     private GameState gameState;
     private Location hub;
 
-    private List<Entity> boxes;
+    private List<UUID> boxes;
     private List<GameDifficulty> votes;
     private int raceCount;
 
@@ -70,7 +69,6 @@ public class MarioCraft extends JavaPlugin {
 
         ProtocolLibrary.getProtocolManager().addPacketListener(new EntityController(this, ListenerPriority.HIGHEST, PacketType.Play.Client.STEER_VEHICLE));
 
-        getServer().getPluginManager().registerEvents(new ControllerListeners(this), this);
         getServer().getPluginManager().registerEvents(new WorldListeners(), this);
         getServer().getPluginManager().registerEvents(new GUIListeners(this), this);
         getServer().getPluginManager().registerEvents(new GameListeners(this), this);
@@ -97,7 +95,7 @@ public class MarioCraft extends JavaPlugin {
     }
 
 
-    public List<Entity> getBoxes() {
+    public List<UUID> getBoxes() {
         return boxes;
     }
 
@@ -180,7 +178,10 @@ public class MarioCraft extends JavaPlugin {
                 if(gameState == GameState.PRE_GAME || gameState == GameState.SELECTION) {
 
                     for(UUID id : playerManager.getData().keySet()){
+
                         Player p = getServer().getPlayer(id);
+
+                        if(p == null) return;
 
                         if(p.getLocation().getWorld().getName().equalsIgnoreCase("world")){
 

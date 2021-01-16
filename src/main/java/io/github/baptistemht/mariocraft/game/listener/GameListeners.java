@@ -7,7 +7,6 @@ import io.github.baptistemht.mariocraft.game.player.PlayerState;
 import io.github.baptistemht.mariocraft.util.GameUtils;
 import io.github.baptistemht.mariocraft.util.LootUtils;
 import io.github.baptistemht.mariocraft.util.MessageUtils;
-import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.GameMode;
 import org.bukkit.Material;

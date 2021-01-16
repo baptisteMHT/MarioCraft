@@ -15,6 +15,7 @@ import org.bukkit.inventory.meta.ItemMeta;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
+import java.util.UUID;
 
 public class BoxUtils {
 
@@ -26,11 +27,12 @@ public class BoxUtils {
         e.setSilent(true);
         e.setInvulnerable(true);
         e.setGravity(false);
-        MarioCraft.getInstance().getBoxes().add(e);
+        MarioCraft.getInstance().getBoxes().add(e.getUniqueId());
     }
 
     public static Entity getBox(int x, int z){
-        for(Entity e : MarioCraft.getInstance().getBoxes()){
+        for(UUID id : MarioCraft.getInstance().getBoxes()){
+            Entity e = MarioCraft.getInstance().getServer().getEntity(id);
             if(e.getLocation().getBlockX() == x && e.getLocation().getBlockZ() == z){
                 return e;
             }
@@ -39,17 +41,26 @@ public class BoxUtils {
     }
 
     public static void resetBoxesFromAllTracks(){
-        for(Entity e : MarioCraft.getInstance().getBoxes()){
-            if(e.getWorld().getName().contains("track")){
+        for(Track t : MarioCraft.getInstance().getTracksManager().getTracks()){
+            resetBoxes(t);
+        }
+    }
+
+    public static void resetBoxes(Track t){
+        for(UUID id : MarioCraft.getInstance().getBoxes()){
+            Entity e = MarioCraft.getInstance().getServer().getEntity(id);
+            if(e.getWorld().getName().equalsIgnoreCase(t.getWorld().getName())){
+                Location l = e.getLocation();
                 e.remove();
-                e.getWorld().spawnEntity(e.getLocation(), EntityType.ARMOR_STAND);
+                e.getWorld().spawnEntity(l, EntityType.ARMOR_STAND);
+                MarioCraft.getInstance().getBoxes().remove(e);
             }
         }
-        MarioCraft.getInstance().getBoxes().clear();
     }
 
     public static void delBox(int x, int z){
-        for(Entity e : MarioCraft.getInstance().getBoxes()){
+        for(UUID id : MarioCraft.getInstance().getBoxes()){
+            Entity e = MarioCraft.getInstance().getServer().getEntity(id);
             if(e.getLocation().getBlockX() == x && e.getLocation().getBlockZ() == z){
                 e.remove();
                 MarioCraft.getInstance().getBoxes().remove(e);

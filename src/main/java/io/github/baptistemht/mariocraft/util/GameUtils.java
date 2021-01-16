@@ -58,6 +58,9 @@ public class GameUtils {
                 }
             }
         }
+    }
+
+    public static void tpToPodium(){
 
     }
 
