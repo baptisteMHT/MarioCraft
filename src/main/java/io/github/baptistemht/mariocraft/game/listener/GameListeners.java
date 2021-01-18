@@ -1,11 +1,10 @@
 package io.github.baptistemht.mariocraft.game.listener;
 
 import io.github.baptistemht.mariocraft.MarioCraft;
-import io.github.baptistemht.mariocraft.game.BoxLoot;
+import io.github.baptistemht.mariocraft.game.Loot;
 import io.github.baptistemht.mariocraft.game.GameState;
 import io.github.baptistemht.mariocraft.game.player.PlayerState;
 import io.github.baptistemht.mariocraft.util.GameUtils;
-import io.github.baptistemht.mariocraft.util.LootUtils;
 import io.github.baptistemht.mariocraft.util.MessageUtils;
 import org.bukkit.ChatColor;
 import org.bukkit.GameMode;
@@ -52,9 +51,7 @@ public class GameListeners implements Listener {
                 return;
             }
 
-            if(BoxLoot.getLootFromName(s.getItemMeta().getDisplayName()) != null){
-
-                LootUtils.executeLootAction(p, BoxLoot.getLootFromName(s.getItemMeta().getDisplayName()));
+            if(Loot.getLootFromName(s.getItemMeta().getDisplayName()) != null){
 
                 new BukkitRunnable() {
                     @Override

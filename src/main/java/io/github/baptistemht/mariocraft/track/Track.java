@@ -19,9 +19,10 @@ public class Track {
     private final World world;
     private final Location grid;
     private final Material selector;
-    private final List<Location> boxes;
     private final int laps;
     private final String author;
+
+    private boolean isLoaded;
 
     public Track(String name, World world, Location grid, Material selector, int laps, String author){
         this.name = name;
@@ -31,23 +32,25 @@ public class Track {
         this.laps = laps;
         this.author = author;
 
-        boxes = new ArrayList<>();
+        isLoaded = false;
 
         load();
     }
 
-    private void load(){
+    public void load(){
+
+        if(isLoaded) return;
+
+        List<Location> locations = new ArrayList<>();
 
         new BukkitRunnable() {
             @Override
             public void run() {
                 int i = 0;
 
-                boxes.clear();
-
                 for(Entity e : world.getEntities()){
                     if(e.getType() == EntityType.ARMOR_STAND){
-                        boxes.add(e.getLocation());
+                        locations.add(e.getLocation());
                         e.remove();
                         i++;
                     }
@@ -56,7 +59,7 @@ public class Track {
                 new BukkitRunnable() {
                     @Override
                     public void run() {
-                        for(Location l : boxes){
+                        for(Location l : locations){
                             BoxUtils.generateBox(l);
                         }
                     }
@@ -66,14 +69,22 @@ public class Track {
             }
         }.runTaskAsynchronously(MarioCraft.getInstance());
 
+        isLoaded = true;
     }
 
     public void reset(){
-        BoxUtils.resetBoxes(this);
+        if(!isLoaded) return;
         for(Entity e : world.getEntities()){
-            if(e.getType() != EntityType.ARMOR_STAND) e.remove();
+            if(e.getType() == EntityType.ENDER_CRYSTAL){
+                Location l = e.getLocation();
+                l.setY(l.getBlockY()+1);
+                e.remove();
+                world.spawnEntity(l, EntityType.ARMOR_STAND);
+            }else{
+                e.remove();
+            }
         }
-        load();
+        isLoaded = false;
     }
 
     public String getName() {
@@ -99,4 +110,5 @@ public class Track {
     public String getAuthor() {
         return author;
     }
+
 }

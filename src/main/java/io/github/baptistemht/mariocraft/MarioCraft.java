@@ -14,6 +14,7 @@ import io.github.baptistemht.mariocraft.game.gui.VehicleSelectorGUI;
 import io.github.baptistemht.mariocraft.game.listener.GameListeners;
 import io.github.baptistemht.mariocraft.game.player.PlayerManager;
 import io.github.baptistemht.mariocraft.task.DifficultyVoteTask;
+import io.github.baptistemht.mariocraft.track.Track;
 import io.github.baptistemht.mariocraft.track.TracksManager;
 import io.github.baptistemht.mariocraft.util.BoxUtils;
 import io.github.baptistemht.mariocraft.world.WorldListeners;
@@ -33,7 +34,6 @@ public class MarioCraft extends JavaPlugin {
     private GameState gameState;
     private Location hub;
 
-    private List<UUID> boxes;
     private List<GameDifficulty> votes;
     private int raceCount;
 
@@ -56,7 +56,6 @@ public class MarioCraft extends JavaPlugin {
         gameState = GameState.INIT;
         hub = new Location(getServer().getWorld("world"), getServer().getWorld("world").getSpawnLocation().getX(), getServer().getWorld("world").getSpawnLocation().getY(), getServer().getWorld("world").getSpawnLocation().getZ());
 
-        boxes = new ArrayList<>();
         votes = new ArrayList<>();
         raceCount = 3;
 
@@ -84,20 +83,15 @@ public class MarioCraft extends JavaPlugin {
 
     @Override
     public void onDisable() {
-        BoxUtils.resetBoxesFromAllTracks();
+        tracksManager.getTracks().forEach(Track::reset);
     }
 
 
     public void setupSequence(){
         gameState = GameState.SELECTION;
-
         new DifficultyVoteTask(this);
     }
 
-
-    public List<UUID> getBoxes() {
-        return boxes;
-    }
 
     public GameDifficulty getDifficulty() {
         return difficulty;
@@ -107,7 +101,6 @@ public class MarioCraft extends JavaPlugin {
         this.difficulty = difficulty;
     }
 
-
     public GameState getGameState() {
         return gameState;
     }
@@ -116,24 +109,20 @@ public class MarioCraft extends JavaPlugin {
         this.gameState = gameState;
     }
 
-
     public Location getHub() {
         return hub;
     }
-
 
     public List<GameDifficulty> getVotes() {
         return votes;
     }
 
-
     public int getRaceCount() {
         return raceCount;
     }
 
-    public int updateRaceCount(){
-        raceCount = raceCount--;
-        return raceCount;
+    public void updateRaceCount(){
+        raceCount--;
     }
 
 
@@ -168,6 +157,7 @@ public class MarioCraft extends JavaPlugin {
         w.setAutoSave(false);
         w.setPVP(false);
         w.setTime(12000);
+        w.setDifficulty(Difficulty.PEACEFUL);
         w.setWeatherDuration(0);
     }
 

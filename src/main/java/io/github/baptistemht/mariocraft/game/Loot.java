@@ -3,17 +3,16 @@ package io.github.baptistemht.mariocraft.game;
 import org.bukkit.ChatColor;
 import org.bukkit.Material;
 
-public enum BoxLoot {
+public enum Loot {
     MUSHROOM(ChatColor.BLUE + "Mushroom", Material.RED_MUSHROOM_BLOCK),
-    GREEN_SHELL(ChatColor.GREEN + "Green Shell", Material.GREEN_CONCRETE),
-    RED_SHELL(ChatColor.RED + "Red Shell", Material.RED_CONCRETE),
     BANANA(ChatColor.YELLOW + "Banana", Material.YELLOW_CARPET),
-    SQUID(ChatColor.BLACK + "Squid", Material.INK_SAC);
+    SQUID(ChatColor.BLACK + "Squid", Material.INK_SAC),
+    SWAP(ChatColor.LIGHT_PURPLE + "Swap", Material.AZURE_BLUET);
 
     final String name;
     final Material material;
 
-    BoxLoot(String name, Material material) {
+    Loot(String name, Material material) {
         this.name = name;
         this.material = material;
     }
@@ -26,8 +25,8 @@ public enum BoxLoot {
         return material;
     }
 
-    public static BoxLoot getLootFromName(String name){
-        for(BoxLoot l : BoxLoot.values()){
+    public static Loot getLootFromName(String name){
+        for(Loot l : Loot.values()){
             if(l.getName().equalsIgnoreCase(name))return l;
         }
         return null;

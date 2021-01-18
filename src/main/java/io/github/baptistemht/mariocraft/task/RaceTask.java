@@ -117,7 +117,8 @@ public class RaceTask {
                             }
                             GameUtils.tpAllToLobby();
                             t.reset();
-                            if(instance.getRaceCount() == 0){
+                            t.load();
+                            if(instance.getRaceCount()-1 > 0){
                                 instance.setGameState(GameState.SELECTION);
                                 new TrackSelectionTask(instance);
                             }else{

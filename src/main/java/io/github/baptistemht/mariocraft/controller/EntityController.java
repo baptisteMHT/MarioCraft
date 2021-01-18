@@ -11,14 +11,17 @@ import io.github.baptistemht.mariocraft.game.player.PlayerData;
 import io.github.baptistemht.mariocraft.util.BoxUtils;
 import io.github.baptistemht.mariocraft.util.TrackUtils;
 import io.github.baptistemht.mariocraft.vehicle.Vehicle;
+import jdk.vm.ci.meta.Local;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.entity.Entity;
+import org.bukkit.entity.EntityType;
 import org.bukkit.entity.Player;
 import org.bukkit.scheduler.BukkitRunnable;
 import org.bukkit.util.Vector;
 
 import java.util.*;
+import java.util.function.Predicate;
 
 public class EntityController extends PacketAdapter {
 
@@ -41,6 +44,39 @@ public class EntityController extends PacketAdapter {
         lastBox = new HashMap<>();
 
         lastLocation = new HashMap<>();
+
+
+
+        new BukkitRunnable() {
+            @Override
+            public void run() {
+
+                if(instance.getGameState() != GameState.RACING)return;
+
+                for(UUID id : instance.getPlayerManager().getPlayersData().keySet()) {
+                    Player p = instance.getServer().getPlayer(id);
+                    Entity e = p.getVehicle();
+                    if (p == null) return;
+
+                    //BOX DETECTION
+                    Collection<Entity> detect = e.getWorld().getNearbyEntities(e.getBoundingBox(), entity -> entity.getType() == EntityType.ENDER_CRYSTAL);
+
+                    if (detect.size() > 0) {
+                        for (Entity box : detect) {
+                            BoxUtils.loot(p);
+                            final Location boxL = box.getLocation();
+                            instance.getServer().getScheduler().runTask(instance, () -> box.remove());
+                            new BukkitRunnable() {
+                                @Override
+                                public void run() {
+                                    BoxUtils.generateBox(boxL);
+                                }
+                            }.runTaskLater(instance, 100L);
+                        }
+                    }
+                }
+            }
+        }.runTaskTimer(instance, 0L, 2L);
 
         /*
         new BukkitRunnable() {
@@ -171,40 +207,6 @@ public class EntityController extends PacketAdapter {
 
         if(checkpointMaterial == Material.RED_CONCRETE || checkpointMaterial == Material.BLUE_CONCRETE || checkpointMaterial == Material.YELLOW_CONCRETE || checkpointMaterial == Material.GREEN_CONCRETE){
             d.updateCheckpoint(checkpointMaterial);
-        }
-
-
-
-        //BOX DETECTION
-        for(int x = l.getBlockX() - 1; x <= l.getBlockX() + 1; x++) {
-            for(int y = l.getBlockY(); y <= l.getBlockY() + 1; y++) {
-                for(int z = l.getBlockZ() - 1; z <= l.getBlockZ() + 1; z++) {
-
-                    Entity box = BoxUtils.getBox(x, z);
-
-                    if(box != null){
-                        if(!lastBox.containsKey(p.getUniqueId()) || (lastBox.containsKey(p.getUniqueId()) && x != lastBox.get(p.getUniqueId()).getBlockX() && z != lastBox.get(p.getUniqueId()).getBlockZ())){
-
-                            final int x1 = x, y1 = y, z1 = z;
-
-                            lastBox.remove(p.getUniqueId());
-                            lastBox.put(p.getUniqueId(), box.getLocation());
-
-                            BoxUtils.loot(p);
-
-                            instance.getServer().getScheduler().runTask(instance, () -> BoxUtils.delBox(x1, z1));
-                            new BukkitRunnable() {
-                                @Override
-                                public void run() {
-                                    lastBox.remove(p.getUniqueId());
-                                    BoxUtils.generateBox(new Location(p.getWorld(), x1, y1, z1));
-                                }
-                            }.runTaskLater(instance, 100L);
-
-                        }
-                    }
-                }
-            }
         }
 
     }

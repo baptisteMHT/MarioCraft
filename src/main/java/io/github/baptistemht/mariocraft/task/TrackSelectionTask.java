@@ -28,16 +28,16 @@ public class TrackSelectionTask {
         for(UUID id : ids){
             Bukkit.getPlayer(id).getInventory().addItem(s);
         }
+
         Bukkit.broadcastMessage("");
         Bukkit.broadcastMessage(MessageUtils.getPrefix() + "Choose a track!");
-        Bukkit.broadcastMessage("");
 
         new BukkitRunnable() {
             @Override
             public void run() {
                 if(instance.getTracksManager().getVotedTracks().size() >= ids.size()){
 
-                    final Track t = instance.getTracksManager().getTracks().get(new Random().nextInt(instance.getTracksManager().getVotedTracks().size()));
+                    final Track t = instance.getTracksManager().getTracks().get(new Random().nextInt(instance.getTracksManager().getVotedTracks().size())); //TODO Randomize problem
 
                     Bukkit.broadcastMessage("");
                     Bukkit.broadcastMessage(MessageUtils.getPrefix() + "Selected track: " + t.getName().replace("_", " "));
@@ -57,7 +57,6 @@ public class TrackSelectionTask {
                             for(UUID id : instance.getPlayerManager().getPlayersData().keySet()){
                                 instance.getPlayerManager().getPlayerData(id).getVehicle().summon(Bukkit.getPlayer(id));
                             }
-
                             new RaceTask(instance, t);
                         }
                     }.runTaskLater(instance, 50L);
