@@ -1,6 +1,6 @@
 package io.github.baptistemht.mariocraft.game.gui;
 
-import io.github.baptistemht.mariocraft.vehicle.Vehicle;
+import io.github.baptistemht.mariocraft.game.Vehicle;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.Material;

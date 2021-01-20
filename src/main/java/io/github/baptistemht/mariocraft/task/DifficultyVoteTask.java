@@ -28,8 +28,9 @@ public class DifficultyVoteTask {
         m.setDisplayName("Difficulty");
         s.setItemMeta(m);
 
-        for(UUID id : instance.getPlayerManager().getPlayersData().keySet()){
-            Bukkit.getPlayer(id).getInventory().addItem(s);
+        for (UUID id : instance.getPlayerManager().getData().keySet()) {
+            Player p = instance.getServer().getPlayer(id);
+            if(p!=null) p.getInventory().addItem(s);
         }
 
         Bukkit.broadcastMessage(MessageUtils.getPrefix() + "Difficulty vote started! 60 seconds before the vote closes.");
@@ -40,7 +41,7 @@ public class DifficultyVoteTask {
             @Override
             public void run() {
 
-                if(MarioCraft.getInstance().getVotes().size() >= MarioCraft.getInstance().getPlayerManager().getPlayersData().size() || i == 0){
+                if(MarioCraft.getInstance().getVotes().size() >= MarioCraft.getInstance().getPlayerManager().getData().size() || i == 0){
 
                     for(Player p : Bukkit.getOnlinePlayers()){
                         p.getInventory().clear();
@@ -58,6 +59,8 @@ public class DifficultyVoteTask {
     }
 
     private void calculateDiff(){
+
+        //TODO WORK THIS OUT
 
         int a = 0, b = 0, c = 0, d = 0;
 

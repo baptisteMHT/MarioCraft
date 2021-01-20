@@ -17,7 +17,7 @@ public class VehicleSelectorTask {
     private int i;
 
     public VehicleSelectorTask(MarioCraft instance) {
-        Set<UUID> ids = instance.getPlayerManager().getPlayersData().keySet();
+        Set<UUID> ids = instance.getPlayerManager().getData().keySet();
 
         ItemStack s = new ItemStack(Material.BEE_SPAWN_EGG);
         ItemMeta m = s.getItemMeta();
@@ -25,7 +25,8 @@ public class VehicleSelectorTask {
         s.setItemMeta(m);
 
         for (UUID id : ids) {
-            Bukkit.getPlayer(id).getInventory().addItem(s);
+            Player p = instance.getServer().getPlayer(id);
+            if(p!=null) p.getInventory().addItem(s);
         }
 
         Bukkit.broadcastMessage(MessageUtils.getPrefix() + "Choose your kart!");
@@ -35,7 +36,7 @@ public class VehicleSelectorTask {
             public void run() {
                 i = 0;
                 for (UUID id : ids) {
-                 if (instance.getPlayerManager().getPlayerData(id).getVehicle() != null) {
+                 if (instance.getPlayerManager().getPlayer(id).getVehicle() != null) {
                         i++;
                     }
                 }

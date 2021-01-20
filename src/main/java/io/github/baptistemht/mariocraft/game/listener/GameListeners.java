@@ -3,7 +3,6 @@ package io.github.baptistemht.mariocraft.game.listener;
 import io.github.baptistemht.mariocraft.MarioCraft;
 import io.github.baptistemht.mariocraft.game.Loot;
 import io.github.baptistemht.mariocraft.game.GameState;
-import io.github.baptistemht.mariocraft.game.player.PlayerState;
 import io.github.baptistemht.mariocraft.util.GameUtils;
 import io.github.baptistemht.mariocraft.util.MessageUtils;
 import org.bukkit.ChatColor;
@@ -56,7 +55,7 @@ public class GameListeners implements Listener {
                 new BukkitRunnable() {
                     @Override
                     public void run() {
-                        p.getInventory().remove(s);
+                        s.setAmount(s.getAmount()-1);
                         p.updateInventory();
                     }
                 }.runTaskLater(instance, 1L);
@@ -68,7 +67,7 @@ public class GameListeners implements Listener {
 
 
 
-    /***************************LOGIN EVENTS******************************************/
+    /***************************LOGIN EVENTS******************************************/     //TODO Keep working on this. Player management during the race and all
 
 
 
@@ -80,16 +79,8 @@ public class GameListeners implements Listener {
                 e.disallow(PlayerLoginEvent.Result.KICK_OTHER, "Server not ready.");
                 break;
             case PRE_GAME:
-                if(instance.getPlayerManager().getPlayersData().size() < instance.getPlayerManager().getPlayerLimit()){
-                    instance.getPlayerManager().insertPlayerData(e.getPlayer().getUniqueId(), PlayerState.PLAYER);
-                }else {
-                    instance.getPlayerManager().insertPlayerData(e.getPlayer().getUniqueId(), PlayerState.SPECTATOR);
-                }
-                break;
-            case SELECTION:
-            case RACING:
-                if(!instance.getPlayerManager().getPlayersData().containsKey(e.getPlayer().getUniqueId())){
-                    instance.getPlayerManager().insertPlayerData(e.getPlayer().getUniqueId(), PlayerState.SPECTATOR);
+                if(instance.getPlayerManager().getData().size() < instance.getPlayerManager().getPlayerLimit()){
+                    instance.getPlayerManager().addPlayer(e.getPlayer().getUniqueId());
                 }
                 break;
         }
@@ -97,14 +88,10 @@ public class GameListeners implements Listener {
 
     @EventHandler
     public void onJoin(PlayerJoinEvent e){
-        if(instance.getPlayerManager().getPlayerData(e.getPlayer().getUniqueId()).getState() == PlayerState.PLAYER){
-            if(instance.getGameState() == GameState.RACING || instance.getGameState() == GameState.SELECTION){
-                e.setJoinMessage(null);
-                return;
-            }
-            e.getPlayer().setGameMode(GameMode.SURVIVAL);
+        if(instance.getPlayerManager().getPlayer(e.getPlayer().getUniqueId()) != null){
+            e.getPlayer().setGameMode(GameMode.ADVENTURE);
 
-            e.setJoinMessage(MessageUtils.getPrefix() + e.getPlayer().getName() + " joined the game! [" + instance.getPlayerManager().getPlayersData().size() + "/" + instance.getPlayerManager().getPlayerLimit()+ "]");
+            e.setJoinMessage(MessageUtils.getPrefix() + e.getPlayer().getName() + " joined the game! [" + instance.getPlayerManager().getData().size() + "/" + instance.getPlayerManager().getPlayerLimit()+ "]");
             MessageUtils.sendTitle(e.getPlayer().getUniqueId(), ChatColor.YELLOW + "Welcome to " + ChatColor.RED + "MarioCraft" , ChatColor.GRAY + "Made by " + ChatColor.WHITE + "Arakite", 50);
         } else{
             e.getPlayer().setGameMode(GameMode.SPECTATOR);
@@ -125,33 +112,18 @@ public class GameListeners implements Listener {
             e.setJoinMessage(null);
         }
 
-        if(e.getPlayer().isInsideVehicle()) e.getPlayer().leaveVehicle();
-
         e.getPlayer().getInventory().clear();
         e.getPlayer().setFireTicks(0);
         e.getPlayer().setExp(0);
         e.getPlayer().setFoodLevel(20);
         e.getPlayer().setHealth(e.getPlayer().getHealthScale());
 
-        GameUtils.tpPlayerToLobby(e.getPlayer());
+        GameUtils.tpPlayerToLobby(e.getPlayer()); //TODO tp where the show is happening
     }
 
     @EventHandler
     public void onQuit(PlayerQuitEvent e){
-        switch (instance.getGameState()){
-            case PRE_GAME:
-            case POST_GAME:
-                instance.getPlayerManager().getData().remove(e.getPlayer().getUniqueId());
-                break;
-            case SELECTION:
-            case RACING:
-                if(instance.getPlayerManager().getPlayerData(e.getPlayer().getUniqueId()).getState() == PlayerState.SPECTATOR){
-                    instance.getPlayerManager().getData().remove(e.getPlayer().getUniqueId());
-                }
-                break;
-        }
-
-        e.getPlayer().leaveVehicle();
+        //TODO Quit message only if he was racing. If player and reconnect, set spec until the next race and don't give points.
     }
 
 }

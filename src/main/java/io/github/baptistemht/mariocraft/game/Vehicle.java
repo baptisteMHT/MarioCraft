@@ -1,7 +1,6 @@
-package io.github.baptistemht.mariocraft.vehicle;
+package io.github.baptistemht.mariocraft.game;
 
 import io.github.baptistemht.mariocraft.MarioCraft;
-import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.Material;
 import org.bukkit.World;
@@ -57,19 +56,11 @@ public enum Vehicle {
         e.setInvulnerable(true);
         e.setSilent(true);
         e.addPassenger(p);
-        MarioCraft.getInstance().getPlayerManager().getPlayerData(p.getUniqueId()).setVehicle(this);
     }
 
     public static Vehicle getVehicleFromEntityType(EntityType e){
         for(Vehicle v : Vehicle.values()){
             if(v.getType() == e)return v;
-        }
-        return null;
-    }
-
-    public static Vehicle getVehicleFromName(String name){
-        for(Vehicle v : Vehicle.values()){
-            if(v.getName().equalsIgnoreCase(name))return v;
         }
         return null;
     }

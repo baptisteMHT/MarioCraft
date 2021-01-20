@@ -2,7 +2,8 @@ package io.github.baptistemht.mariocraft.game.gui;
 
 import io.github.baptistemht.mariocraft.MarioCraft;
 import io.github.baptistemht.mariocraft.game.GameDifficulty;
-import io.github.baptistemht.mariocraft.vehicle.Vehicle;
+import io.github.baptistemht.mariocraft.track.Track;
+import io.github.baptistemht.mariocraft.game.Vehicle;
 import org.bukkit.Material;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
@@ -35,16 +36,16 @@ public class GUIListeners implements Listener {
 
         }else if (e.getInventory().getHolder().equals(instance.getVehicleSelectorGUI())){
 
-            instance.getPlayerManager().getDataFromPlayer(p).setVehicle(Vehicle.getVehicleFromSelector(s.getType()));
+            instance.getPlayerManager().getPlayer(p.getUniqueId()).setVehicle(Vehicle.getVehicleFromSelector(s.getType()));
 
         }else if(e.getInventory().getHolder().equals(instance.getTrackListGUI())){
-
             if(s.getItemMeta().getDisplayName().equalsIgnoreCase("Random Track")){
-                instance.getTracksManager().getVotedTracks().add(instance.getTracksManager().getTracks().get(new Random().nextInt(instance.getTracksManager().getTracks().size() - 1)));
+                int index = new Random().nextInt(instance.getTracksManager().getVotedTracks().size());
+                instance.getTracksManager().getVotedTracks().set(index, instance.getTracksManager().getVotedTracks().get(index)+1);
             }else{
-                instance.getTracksManager().getVotedTracks().add(instance.getTracksManager().getTrackFromSelector(s.getType()));
+                Track t = instance.getTracksManager().getTrackFromSelector(s.getType());
+                instance.getTracksManager().getVotedTracks().set(instance.getTracksManager().getTracks().indexOf(t), instance.getTracksManager().getVotedTracks().get(instance.getTracksManager().getTracks().indexOf(t))+1);
             }
-
         }
 
         p.closeInventory();

@@ -77,7 +77,6 @@ public class Track {
         for(Entity e : world.getEntities()){
             if(e.getType() == EntityType.ENDER_CRYSTAL){
                 Location l = e.getLocation();
-                l.setY(l.getBlockY()+1);
                 e.remove();
                 world.spawnEntity(l, EntityType.ARMOR_STAND);
             }else{

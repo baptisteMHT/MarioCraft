@@ -40,7 +40,7 @@ public class RaceTask {
         raceData = new HashMap<>();
         finishers = new ArrayList<>();
 
-        pilots.addAll(instance.getPlayerManager().getPlayersData().keySet());
+        pilots.addAll(instance.getPlayerManager().getData().keySet());
 
         countdown = 10;
 
@@ -48,11 +48,11 @@ public class RaceTask {
             @Override
             public void run() {
                 if(countdown == 10){
-                    MessageUtils.sendTitleToPlayers(ChatColor.GREEN + t.getName(), ChatColor.GRAY + "" +  t.getLaps() + " laps | " + instance.getDifficulty().getName(), 80);
+                    MessageUtils.sendTitle(ChatColor.GREEN + t.getName(), ChatColor.GRAY + "" +  t.getLaps() + " laps | " + instance.getDifficulty().getName(), 80);
                 }else if(countdown <= 3 && countdown > 0){
-                    MessageUtils.sendTitleToPlayers(ChatColor.YELLOW + "" + countdown, null, 20);
+                    MessageUtils.sendTitle(ChatColor.YELLOW + "" + countdown, null, 20);
                 }else if(countdown == 0){
-                    MessageUtils.sendTitleToPlayers(ChatColor.YELLOW + "GO!", null, 20);
+                    MessageUtils.sendTitle(ChatColor.YELLOW + "GO!", null, 20);
                     instance.setGameState(GameState.RACING);
                     clock();
                     this.cancel();
@@ -76,7 +76,7 @@ public class RaceTask {
             public void run() {
 
                 for(UUID id : pilots){
-                    PlayerData d = instance.getPlayerManager().getPlayerData(id);
+                    PlayerData d = instance.getPlayerManager().getPlayer(id);
 
                     if(!finishers.contains(id)){
                         int l = d.getLaps();
@@ -113,17 +113,18 @@ public class RaceTask {
                         @Override
                         public void run() {
                             for(UUID id : pilots){
-                                instance.getPlayerManager().getPlayerData(id).cleanRaceData();
+                                instance.getPlayerManager().getPlayer(id).cleanRaceData();
+                                instance.getServer().getPlayer(id).getInventory().clear();
                             }
                             GameUtils.tpAllToLobby();
                             t.reset();
                             t.load();
-                            if(instance.getRaceCount()-1 > 0){
-                                instance.setGameState(GameState.SELECTION);
-                                new TrackSelectionTask(instance);
-                            }else{
+                            if(instance.getRaceCount() == 0){
                                 //finish
                                 instance.setGameState(GameState.POST_GAME);
+                            }else{
+                                instance.setGameState(GameState.SELECTION);
+                                new TrackSelectionTask(instance);
                             }
 
                         }

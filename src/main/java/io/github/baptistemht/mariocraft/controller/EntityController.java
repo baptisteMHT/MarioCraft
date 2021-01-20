@@ -10,8 +10,7 @@ import io.github.baptistemht.mariocraft.game.GameState;
 import io.github.baptistemht.mariocraft.game.player.PlayerData;
 import io.github.baptistemht.mariocraft.util.BoxUtils;
 import io.github.baptistemht.mariocraft.util.TrackUtils;
-import io.github.baptistemht.mariocraft.vehicle.Vehicle;
-import jdk.vm.ci.meta.Local;
+import io.github.baptistemht.mariocraft.game.Vehicle;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.entity.Entity;
@@ -21,7 +20,6 @@ import org.bukkit.scheduler.BukkitRunnable;
 import org.bukkit.util.Vector;
 
 import java.util.*;
-import java.util.function.Predicate;
 
 public class EntityController extends PacketAdapter {
 
@@ -53,7 +51,7 @@ public class EntityController extends PacketAdapter {
 
                 if(instance.getGameState() != GameState.RACING)return;
 
-                for(UUID id : instance.getPlayerManager().getPlayersData().keySet()) {
+                for(UUID id : instance.getPlayerManager().getData().keySet()) {
                     Player p = instance.getServer().getPlayer(id);
                     Entity e = p.getVehicle();
                     if (p == null) return;
@@ -126,7 +124,7 @@ public class EntityController extends PacketAdapter {
     public void onPacketReceiving(PacketEvent event) {
 
         final Player p = event.getPlayer();
-        final PlayerData d = instance.getPlayerManager().getPlayerData(p.getUniqueId());
+        final PlayerData d = instance.getPlayerManager().getPlayer(p.getUniqueId());
         final Location l = p.getLocation();
 
         final Entity e = p.getVehicle();
@@ -197,8 +195,8 @@ public class EntityController extends PacketAdapter {
 
         if(instance.getGameState() != GameState.RACING) return;
 
-        double xVel = 0.01 * output * TrackUtils.getTrackAdherence(standingOnMaterial) * diffMultiplier * d.getBoost() * v.getMaxSpeed() * l.getDirection().getX();
-        double zVel = 0.01 * output * TrackUtils.getTrackAdherence(standingOnMaterial) * diffMultiplier * d.getBoost() * v.getMaxSpeed() * l.getDirection().getZ();
+        double xVel = 0.01 * output * TrackUtils.getTrackAdherence(standingOnMaterial) * diffMultiplier * v.getMaxSpeed() * l.getDirection().getX();
+        double zVel = 0.01 * output * TrackUtils.getTrackAdherence(standingOnMaterial) * diffMultiplier * v.getMaxSpeed() * l.getDirection().getZ();
 
         e.setVelocity(new Vector(xVel, -0.2, zVel));
 
