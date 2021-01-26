@@ -8,15 +8,10 @@ import io.github.baptistemht.mariocraft.util.GameUtils;
 import io.github.baptistemht.mariocraft.util.MessageUtils;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
-import org.bukkit.entity.Player;
 import org.bukkit.scheduler.BukkitRunnable;
 
 import java.text.SimpleDateFormat;
-import java.time.LocalDate;
-import java.time.LocalDateTime;
-import java.time.format.DateTimeFormatter;
 import java.util.*;
-import java.util.logging.Level;
 
 public class RaceTask {
 

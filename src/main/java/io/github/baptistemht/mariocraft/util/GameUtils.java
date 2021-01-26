@@ -1,7 +1,6 @@
 package io.github.baptistemht.mariocraft.util;
 
 import io.github.baptistemht.mariocraft.MarioCraft;
-import io.github.baptistemht.mariocraft.game.player.PlayerData;
 import io.github.baptistemht.mariocraft.game.player.PlayerManager;
 import io.github.baptistemht.mariocraft.track.Track;
 import org.bukkit.Bukkit;

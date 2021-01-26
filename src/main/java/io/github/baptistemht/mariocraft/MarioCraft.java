@@ -16,23 +16,30 @@ import io.github.baptistemht.mariocraft.game.player.PlayerManager;
 import io.github.baptistemht.mariocraft.task.DifficultyVoteTask;
 import io.github.baptistemht.mariocraft.track.Track;
 import io.github.baptistemht.mariocraft.track.TracksManager;
-import io.github.baptistemht.mariocraft.util.BoxUtils;
 import io.github.baptistemht.mariocraft.world.WorldListeners;
 import org.bukkit.*;
-import org.bukkit.entity.Entity;
+import org.bukkit.configuration.InvalidConfigurationException;
+import org.bukkit.configuration.file.FileConfiguration;
+import org.bukkit.configuration.file.YamlConfiguration;
 import org.bukkit.entity.Player;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.bukkit.scheduler.BukkitRunnable;
 
+import java.io.File;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.UUID;
+import java.util.Objects;
 
 public class MarioCraft extends JavaPlugin {
 
     private GameDifficulty difficulty;
     private GameState gameState;
+
     private Location hub;
+    private World hubWorld;
+
+    private int maxHubDistance;
 
     private List<GameDifficulty> votes;
     private int raceCount;
@@ -46,24 +53,54 @@ public class MarioCraft extends JavaPlugin {
 
     private static MarioCraft instance;
 
+    private FileConfiguration config;
+
+    private FileConfiguration message;
+
     @Override
     public void onEnable() {
         instance = this;
 
-        setupWorld(getServer().getWorld("world"));
+        loadCustomConfig();
+
+        hubWorld = getServer().getWorld(Objects.requireNonNull(getConfig().getString("hub.name", "world")));
+
+        if(hubWorld != null){
+            setupWorld(hubWorld);
+            getLogger().info("[CONFIG] hub.name : " + hubWorld.getName());
+            hub = new Location(hubWorld,
+                    hubWorld.getSpawnLocation().getBlockX(),
+                    hubWorld.getSpawnLocation().getBlockY(),
+                    hubWorld.getSpawnLocation().getBlockZ()
+            );
+            maxHubDistance = getConfig().getInt("hub.distance", 75);
+            getLogger().info("[CONFIG] hub.distance : " + maxHubDistance);
+        }else{
+            getLogger().severe("Failed to find the hub. Shutting down the server.");
+            getServer().shutdown();
+            return;
+        }
 
         difficulty = GameDifficulty.NORMAL;
         gameState = GameState.INIT;
-        hub = new Location(getServer().getWorld("world"), getServer().getWorld("world").getSpawnLocation().getX(), getServer().getWorld("world").getSpawnLocation().getY(), getServer().getWorld("world").getSpawnLocation().getZ());
 
         votes = new ArrayList<>();
-        raceCount = 3;
+
+        raceCount = getConfig().getInt("race.number", 3);
+        getLogger().info("[CONFIG] race.number : " + raceCount);
+
 
         difficultySelectorGUI = new DifficultySelectorGUI();
         vehicleSelectorGUI = new VehicleSelectorGUI();
         trackListGUI = new TrackListGUI();
 
-        playerManager = new PlayerManager(9);
+        int pilots = getConfig().getInt("race.pilots", 9);
+        int spectators = getConfig().getInt("race.spectators", 11);
+
+        getLogger().info("[CONFIG] race.pilots : " + pilots);
+        getLogger().info("[CONFIG] race.spectators : " + spectators);
+
+        playerManager = new PlayerManager(pilots, spectators);
         tracksManager = new TracksManager(this);
 
         ProtocolLibrary.getProtocolManager().addPacketListener(new EntityController(this, ListenerPriority.HIGHEST, PacketType.Play.Client.STEER_VEHICLE));
@@ -111,6 +148,10 @@ public class MarioCraft extends JavaPlugin {
 
     public Location getHub() {
         return hub;
+    }
+
+    public World getHubWorld() {
+        return hubWorld;
     }
 
     public List<GameDifficulty> getVotes() {
@@ -167,17 +208,13 @@ public class MarioCraft extends JavaPlugin {
             public void run() {
                 if(gameState == GameState.PRE_GAME || gameState == GameState.SELECTION) {
 
-                    for(UUID id : playerManager.getData().keySet()){
+                    for(Player p : getServer().getOnlinePlayers()){
 
-                        Player p = getServer().getPlayer(id);
-
-                        if(p == null) return;
-
-                        if(p.getLocation().getWorld().getName().equalsIgnoreCase("world")){
+                        if(p.getWorld().getName().equalsIgnoreCase(hubWorld.getName())){
 
                             double dist = p.getLocation().distance(hub);
 
-                            if(dist > 75){
+                            if(dist > maxHubDistance){
 
                                 new BukkitRunnable() {
                                     @Override
@@ -196,5 +233,39 @@ public class MarioCraft extends JavaPlugin {
                 }
             }
         }.runTaskTimerAsynchronously(this, 0L, 20L);
+    }
+
+    @Override
+    public FileConfiguration getConfig() {
+        return config;
+    }
+
+    public FileConfiguration getMessage() {
+        return message;
+    }
+
+    private void loadCustomConfig(){
+        File configFile = new File(getDataFolder(), "config.yml");
+        File messageFile = new File(getDataFolder(), "message.yml");
+
+        if (!configFile.exists()) {
+            configFile.getParentFile().mkdirs();
+            saveResource("config.yml", false);
+        }
+
+        if (!messageFile.exists()) {
+            messageFile.getParentFile().mkdirs();
+            saveResource("message.yml", false);
+        }
+
+        config = new YamlConfiguration();
+        message = new YamlConfiguration();
+        try {
+            config.load(configFile);
+            message.load(messageFile);
+        } catch (IOException | InvalidConfigurationException e) {
+            e.printStackTrace();
+        }
+
     }
 }

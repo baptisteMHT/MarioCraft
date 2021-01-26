@@ -8,7 +8,7 @@ import org.bukkit.command.CommandSender;
 
 public class StartCommand implements CommandExecutor {
 
-    private MarioCraft instance;
+    private final MarioCraft instance;
 
     public StartCommand(MarioCraft instance) {
         this.instance = instance;

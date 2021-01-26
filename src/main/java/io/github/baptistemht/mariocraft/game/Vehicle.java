@@ -1,6 +1,5 @@
 package io.github.baptistemht.mariocraft.game;
 
-import io.github.baptistemht.mariocraft.MarioCraft;
 import org.bukkit.ChatColor;
 import org.bukkit.Material;
 import org.bukkit.World;
@@ -70,10 +69,5 @@ public enum Vehicle {
             if(v.getSelector().equals(selector))return v;
         }
         return null;
-    }
-
-    public static Vehicle getVehicleFromPlayer(Player p){
-        if(!p.isInsideVehicle()) return null;
-        return getVehicleFromEntityType(p.getVehicle().getType());
     }
 }

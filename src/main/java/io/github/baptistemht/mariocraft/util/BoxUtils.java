@@ -1,8 +1,6 @@
 package io.github.baptistemht.mariocraft.util;
 
-import io.github.baptistemht.mariocraft.MarioCraft;
 import io.github.baptistemht.mariocraft.game.Loot;
-import io.github.baptistemht.mariocraft.track.Track;
 import org.bukkit.Location;
 import org.bukkit.World;
 import org.bukkit.entity.Entity;
@@ -12,8 +10,6 @@ import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
 
 import java.util.Random;
-import java.util.UUID;
-import java.util.function.Consumer;
 
 public class BoxUtils {
 

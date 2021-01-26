@@ -1,7 +1,5 @@
 package io.github.baptistemht.mariocraft.game.player;
 
-import org.bukkit.entity.Player;
-
 import java.util.HashMap;
 import java.util.Map;
 import java.util.UUID;
@@ -9,10 +7,12 @@ import java.util.UUID;
 public class PlayerManager {
 
     private final Map<UUID, PlayerData> data;
-    private int playerLimit;
+    private final int pilots;
+    private final int spectators;
 
-    public PlayerManager(int playerLimit){
-        this.playerLimit = playerLimit;
+    public PlayerManager(int pilots, int spectators){
+        this.pilots = pilots;
+        this.spectators = spectators;
         data = new HashMap<>();
     }
 
@@ -35,11 +35,9 @@ public class PlayerManager {
     }
 
 
-    public void setPlayerLimit(int playerLimit) {
-        this.playerLimit = playerLimit;
+    public int getPilotsLimit() {
+        return pilots;
     }
 
-    public int getPlayerLimit() {
-        return playerLimit;
-    }
+    public int getSpectatorsLimit(){return spectators; }
 }

@@ -30,20 +30,12 @@ public class EntityController extends PacketAdapter {
     private final Map<UUID, Integer> enginesRPM;
     private final Map<UUID, Integer> enginesThr;
 
-    private final Map<UUID, Location> lastBox;
-    private final Map<UUID, Location> lastLocation;
-
     public EntityController(MarioCraft plugin, ListenerPriority listenerPriority, PacketType... types) {
         super(plugin, listenerPriority, types);
 
         instance = plugin;
         enginesRPM = new HashMap<>();
         enginesThr = new HashMap<>();
-        lastBox = new HashMap<>();
-
-        lastLocation = new HashMap<>();
-
-
 
         new BukkitRunnable() {
             @Override
@@ -53,8 +45,11 @@ public class EntityController extends PacketAdapter {
 
                 for(UUID id : instance.getPlayerManager().getData().keySet()) {
                     Player p = instance.getServer().getPlayer(id);
-                    Entity e = p.getVehicle();
                     if (p == null) return;
+
+                    Entity e = p.getVehicle();
+
+                    if(e == null) return;
 
                     //BOX DETECTION
                     Collection<Entity> detect = e.getWorld().getNearbyEntities(e.getBoundingBox(), entity -> entity.getType() == EntityType.ENDER_CRYSTAL);
@@ -63,7 +58,7 @@ public class EntityController extends PacketAdapter {
                         for (Entity box : detect) {
                             BoxUtils.loot(p);
                             final Location boxL = box.getLocation();
-                            instance.getServer().getScheduler().runTask(instance, () -> box.remove());
+                            instance.getServer().getScheduler().runTask(instance, box::remove);
                             new BukkitRunnable() {
                                 @Override
                                 public void run() {
@@ -75,60 +70,23 @@ public class EntityController extends PacketAdapter {
                 }
             }
         }.runTaskTimer(instance, 0L, 2L);
-
-        /*
-        new BukkitRunnable() {
-            @Override
-            public void run() {
-
-                if(instance.getGameState() != GameState.RACING)return;
-
-                for(UUID id : instance.getPlayerManager().getPlayersData().keySet()){
-                    Player p = Bukkit.getPlayer(id);
-                    if(lastLocation.containsKey(id)){
-                        Material trackCheckerMaterial = p.getVehicle().getWorld().getBlockAt(p.getVehicle().getLocation().getBlockX(), p.getVehicle().getLocation().getBlockY() -3, p.getVehicle().getLocation().getBlockZ()).getType();
-
-                        if(!trackCheckerMaterial.equals(Material.OBSIDIAN)){
-                            instance.getLogger().info("OUT");
-
-                            enginesRPM.replace(p.getUniqueId(), 0);
-
-                            new BukkitRunnable() {
-                                @Override
-                                public void run() {
-                                    PotionEffect effect = new PotionEffect(PotionEffectType.BLINDNESS, 40, 2, true, true);
-                                    p.addPotionEffect(effect);
-                                    p.getVehicle().teleport(lastLocation.get(p.getUniqueId()));
-                                    instance.getLogger().info(lastLocation.get(p.getUniqueId()).getBlockX() + " " + lastLocation.get(p.getUniqueId()).getBlockY() + " " + lastLocation.get(p.getUniqueId()).getBlockZ());
-                                }
-                            }.runTask(instance);
-
-                        }else{
-                            instance.getLogger().info("IN");
-
-                            lastLocation.remove(id);
-                            lastLocation.put(id, p.getLocation());
-                        }
-                    }else{
-                        lastLocation.put(id, p.getLocation());
-                    }
-                }
-
-            }
-        }.runTaskTimerAsynchronously(instance, 20L, 10L);
-
-         */
     }
 
     @Override
     public void onPacketReceiving(PacketEvent event) {
 
         final Player p = event.getPlayer();
+
         final PlayerData d = instance.getPlayerManager().getPlayer(p.getUniqueId());
+        if(d == null) return;
+
         final Location l = p.getLocation();
 
         final Entity e = p.getVehicle();
+        if(e == null) return;
+
         final Vehicle v = Vehicle.getVehicleFromEntityType(e.getType());
+        if(v == null) return;
 
         final Material standingOnMaterial = e.getWorld().getBlockAt(e.getLocation().getBlockX(), e.getLocation().getBlockY() -1, e.getLocation().getBlockZ()).getType();
         final Material deepMaterial = e.getWorld().getBlockAt(e.getLocation().getBlockX(), e.getLocation().getBlockY() -2, e.getLocation().getBlockZ()).getType();

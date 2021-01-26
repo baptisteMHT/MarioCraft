@@ -42,6 +42,8 @@ public class TracksManager {
                 final String[] s = name.split("-");
                 final World w = instance.getServer().createWorld(new WorldCreator(f.getName()));
 
+                if(w == null) return;
+
                 instance.setupWorld(w);
 
                 tracks.add(new Track(s[1].replace("_", " "), w, w.getSpawnLocation(), Material.valueOf(s[2].toUpperCase()), Integer.parseInt(s[3]), s[4]));

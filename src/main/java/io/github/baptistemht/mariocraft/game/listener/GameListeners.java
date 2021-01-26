@@ -1,13 +1,12 @@
 package io.github.baptistemht.mariocraft.game.listener;
 
 import io.github.baptistemht.mariocraft.MarioCraft;
-import io.github.baptistemht.mariocraft.game.Loot;
 import io.github.baptistemht.mariocraft.game.GameState;
+import io.github.baptistemht.mariocraft.game.Loot;
 import io.github.baptistemht.mariocraft.util.GameUtils;
 import io.github.baptistemht.mariocraft.util.MessageUtils;
 import org.bukkit.ChatColor;
 import org.bukkit.GameMode;
-import org.bukkit.Material;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
@@ -36,20 +35,6 @@ public class GameListeners implements Listener {
 
             if(s == null)return;
 
-            if(s.getType() == Material.DIAMOND_SWORD){
-                instance.getDifficultySelectorGUI().openInventory(p);
-                return;
-            }
-
-            if(s.getType() == Material.BEE_SPAWN_EGG){
-                instance.getVehicleSelectorGUI().openInventory(p);
-                return;
-            }
-            if(s.getType() == Material.MUSIC_DISC_WARD){
-                instance.getTrackListGUI().openInventory(p);
-                return;
-            }
-
             if(Loot.getLootFromName(s.getItemMeta().getDisplayName()) != null){
 
                 new BukkitRunnable() {
@@ -60,6 +45,20 @@ public class GameListeners implements Listener {
                     }
                 }.runTaskLater(instance, 1L);
 
+            }
+
+            if(instance.getGameState() == GameState.RACING) return;
+
+            switch (s.getType()){
+                case DIAMOND_SWORD:
+                    instance.getDifficultySelectorGUI().openInventory(p);
+                    break;
+                case BEE_SPAWN_EGG:
+                    instance.getVehicleSelectorGUI().openInventory(p);
+                    break;
+                case MUSIC_DISC_WARD:
+                    instance.getTrackListGUI().openInventory(p);
+                    break;
             }
 
         }
@@ -79,7 +78,7 @@ public class GameListeners implements Listener {
                 e.disallow(PlayerLoginEvent.Result.KICK_OTHER, "Server not ready.");
                 break;
             case PRE_GAME:
-                if(instance.getPlayerManager().getData().size() < instance.getPlayerManager().getPlayerLimit()){
+                if(instance.getPlayerManager().getData().size() < instance.getPlayerManager().getPilotsLimit()){
                     instance.getPlayerManager().addPlayer(e.getPlayer().getUniqueId());
                 }
                 break;
@@ -88,11 +87,20 @@ public class GameListeners implements Listener {
 
     @EventHandler
     public void onJoin(PlayerJoinEvent e){
-        if(instance.getPlayerManager().getPlayer(e.getPlayer().getUniqueId()) != null){
-            e.getPlayer().setGameMode(GameMode.ADVENTURE);
+        if(instance.getPlayerManager().getData().containsKey(e.getPlayer().getUniqueId())){
 
-            e.setJoinMessage(MessageUtils.getPrefix() + e.getPlayer().getName() + " joined the game! [" + instance.getPlayerManager().getData().size() + "/" + instance.getPlayerManager().getPlayerLimit()+ "]");
-            MessageUtils.sendTitle(e.getPlayer().getUniqueId(), ChatColor.YELLOW + "Welcome to " + ChatColor.RED + "MarioCraft" , ChatColor.GRAY + "Made by " + ChatColor.WHITE + "Arakite", 50);
+            switch (instance.getGameState()){
+                case PRE_GAME:
+                    e.getPlayer().setGameMode(GameMode.ADVENTURE);
+                    e.setJoinMessage(MessageUtils.getPrefix() + e.getPlayer().getName() + " joined the game! [" + instance.getPlayerManager().getData().size() + "/" + instance.getPlayerManager().getPilotsLimit()+ "]");
+                    MessageUtils.sendTitle(e.getPlayer().getUniqueId(), ChatColor.YELLOW + "Welcome to " + ChatColor.RED + "MarioCraft" , ChatColor.GRAY + "Made by " + ChatColor.WHITE + "Arakite", 50);
+                case RACING:
+                    e.getPlayer().setGameMode(GameMode.SPECTATOR);
+                    //Join message
+                    //Tell him he'll do the next race.
+                    break;
+            }
+
         } else{
             e.getPlayer().setGameMode(GameMode.SPECTATOR);
             e.getPlayer().sendMessage("");
@@ -108,7 +116,6 @@ public class GameListeners implements Listener {
             e.getPlayer().sendMessage("");
             e.getPlayer().sendMessage(ChatColor.YELLOW + "                           Enjoy watching the game!                   ");
             e.getPlayer().sendMessage(ChatColor.GRAY + "==============================================================");
-            e.getPlayer().sendMessage("");
             e.setJoinMessage(null);
         }
 
@@ -123,7 +130,20 @@ public class GameListeners implements Listener {
 
     @EventHandler
     public void onQuit(PlayerQuitEvent e){
-        //TODO Quit message only if he was racing. If player and reconnect, set spec until the next race and don't give points.
+        switch (instance.getGameState()){
+            case PRE_GAME:
+                instance.getPlayerManager().removePlayer(e.getPlayer().getUniqueId());
+                break;
+            case RACING:
+                if(instance.getPlayerManager().getData().containsKey(e.getPlayer().getUniqueId())){
+                    //tell everyone that he'll be last for this race and reconnect as spec
+                    if(e.getPlayer().getVehicle() != null) e.getPlayer().getVehicle().remove();
+                }
+                break;
+            case SELECTION:
+                //what do we do if he's a player ?
+                break;
+        }
     }
 
 }
