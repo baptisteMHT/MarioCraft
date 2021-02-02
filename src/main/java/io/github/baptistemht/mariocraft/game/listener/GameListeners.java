@@ -88,16 +88,15 @@ public class GameListeners implements Listener {
     @EventHandler
     public void onJoin(PlayerJoinEvent e){
         if(instance.getPlayerManager().getData().containsKey(e.getPlayer().getUniqueId())){
-
             switch (instance.getGameState()){
                 case PRE_GAME:
                     e.getPlayer().setGameMode(GameMode.ADVENTURE);
                     e.setJoinMessage(MessageUtils.getPrefix() + e.getPlayer().getName() + " joined the game! [" + instance.getPlayerManager().getData().size() + "/" + instance.getPlayerManager().getPilotsLimit()+ "]");
                     MessageUtils.sendTitle(e.getPlayer().getUniqueId(), ChatColor.YELLOW + "Welcome to " + ChatColor.RED + "MarioCraft" , ChatColor.GRAY + "Made by " + ChatColor.WHITE + "Arakite", 50);
+                    break;
+                case SELECTION:
                 case RACING:
                     e.getPlayer().setGameMode(GameMode.SPECTATOR);
-                    //Join message
-                    //Tell him he'll do the next race.
                     break;
             }
 
@@ -107,14 +106,7 @@ public class GameListeners implements Listener {
             e.getPlayer().sendMessage(ChatColor.GRAY + "==============================================================");
             e.getPlayer().sendMessage(ChatColor.YELLOW + "               Welcome to " + ChatColor.BOLD + "" + ChatColor.RED+ "MarioCraft"+ ChatColor.YELLOW + "! You are in " + ChatColor.RED + "spectator mode.      ");
             e.getPlayer().sendMessage("");
-            e.getPlayer().sendMessage(ChatColor.YELLOW + "You can only communicate with" + ChatColor.RED + " the other spectators.");
-            e.getPlayer().sendMessage("");
-            e.getPlayer().sendMessage(ChatColor.YELLOW + "Bet for the winner using the following command:");
-            e.getPlayer().sendMessage(ChatColor.RED + "/bet <amount> <player>");
-            e.getPlayer().sendMessage("");
-            e.getPlayer().sendMessage(ChatColor.YELLOW + "Make sure to read the rule using /rules to get more information.");
-            e.getPlayer().sendMessage("");
-            e.getPlayer().sendMessage(ChatColor.YELLOW + "                           Enjoy watching the game!                   ");
+            e.getPlayer().sendMessage(ChatColor.YELLOW + "                           Enjoy the races!                   ");
             e.getPlayer().sendMessage(ChatColor.GRAY + "==============================================================");
             e.setJoinMessage(null);
         }

@@ -104,6 +104,9 @@ public class RaceTask {
 
                     instance.updateRaceCount();
 
+                    updateScore();
+                    updateLeaderboard();
+
                     new BukkitRunnable() {
                         @Override
                         public void run() {
@@ -111,21 +114,22 @@ public class RaceTask {
                                 instance.getPlayerManager().getPlayer(id).cleanRaceData();
                                 instance.getServer().getPlayer(id).getInventory().clear();
                             }
-                            GameUtils.tpAllToLobby();
-                            t.reset();
-                            t.load();
+
                             if(instance.getRaceCount() == 0){
-                                //finish
                                 instance.setGameState(GameState.POST_GAME);
+                                new EndTask(instance);
                             }else{
+                                GameUtils.tpAllToLobby();
                                 instance.setGameState(GameState.SELECTION);
                                 new TrackSelectionTask(instance);
                             }
 
+                            t.reset();
+                            t.load();
+                            registerRaceData();
+
                         }
                     }.runTaskLater(instance, 160L);
-
-                    registerRaceData();
 
                     this.cancel();
                 }
@@ -136,6 +140,35 @@ public class RaceTask {
 
     private void registerRaceData(){
         //DATABASE PUSH
+    }
+
+    private void updateScore(){
+        List<?> score = instance.getConfig().getList("race.score");
+
+        for(int i=0;i<finishers.size();i++){
+            instance.getPlayerManager().getPlayer(finishers.get(i)).addScore((Integer) score.get(i));
+            instance.getLogger().info("Score : " + finishers.get(i) + " | " + instance.getPlayerManager().getPlayer(finishers.get(i)).getScore());
+        }
+
+    }
+
+    private void updateLeaderboard(){
+        if(instance.getLeaderboard().size() == 0){
+            instance.getLeaderboard().addAll(finishers);
+            return;
+        }
+
+        for(int i=instance.getLeaderboard().size()-1; i>0;i--){
+            for(int j=1; j<i;j++){
+                UUID p0 = instance.getLeaderboard().get(j-1);
+                UUID p1 = instance.getLeaderboard().get(j);
+
+                if(instance.getPlayerManager().getPlayer(p0).getScore()<instance.getPlayerManager().getPlayer(p1).getScore()){
+                    instance.getLeaderboard().set(j-1, p1);
+                    instance.getLeaderboard().set(j, p0);
+                }
+            }
+        }
     }
 
     private String formatTime(long time){

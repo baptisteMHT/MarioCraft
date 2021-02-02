@@ -48,17 +48,15 @@ public class EntityController extends PacketAdapter {
                     if (p == null) return;
 
                     Entity e = p.getVehicle();
-
                     if(e == null) return;
 
-                    //BOX DETECTION
                     Collection<Entity> detect = e.getWorld().getNearbyEntities(e.getBoundingBox(), entity -> entity.getType() == EntityType.ENDER_CRYSTAL);
 
                     if (detect.size() > 0) {
                         for (Entity box : detect) {
                             BoxUtils.loot(p);
-                            final Location boxL = box.getLocation();
-                            instance.getServer().getScheduler().runTask(instance, box::remove);
+                            Location boxL = box.getLocation();
+                            box.remove();
                             new BukkitRunnable() {
                                 @Override
                                 public void run() {

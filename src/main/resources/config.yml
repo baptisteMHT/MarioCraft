@@ -1,15 +1,14 @@
 hub:
   name: "world"
   distance: 100
+  podium:
+    location: [8,7,28]
 
 race:
   number: 3
   pilots: 9
   spectators: 11
+  score: [15,12,10,8,7,6,5,4,3,2,1,0]
   autostart:
     allow: False
     required: 6
-
-data:
-  onlineMode: True
-  ip: "https://itsnotworkingyet.com"

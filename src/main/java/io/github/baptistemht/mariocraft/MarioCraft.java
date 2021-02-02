@@ -27,9 +27,7 @@ import org.bukkit.scheduler.BukkitRunnable;
 
 import java.io.File;
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Objects;
+import java.util.*;
 
 public class MarioCraft extends JavaPlugin {
 
@@ -37,11 +35,13 @@ public class MarioCraft extends JavaPlugin {
     private GameState gameState;
 
     private Location hub;
+    private Location podium;
     private World hubWorld;
 
     private int maxHubDistance;
 
     private List<GameDifficulty> votes;
+    private List<UUID> leaderboard;
     private int raceCount;
 
     private DifficultySelectorGUI difficultySelectorGUI;
@@ -68,13 +68,21 @@ public class MarioCraft extends JavaPlugin {
         if(hubWorld != null){
             setupWorld(hubWorld);
             getLogger().info("[CONFIG] hub.name : " + hubWorld.getName());
+
             hub = new Location(hubWorld,
                     hubWorld.getSpawnLocation().getBlockX(),
                     hubWorld.getSpawnLocation().getBlockY(),
                     hubWorld.getSpawnLocation().getBlockZ()
             );
+
             maxHubDistance = getConfig().getInt("hub.distance", 75);
             getLogger().info("[CONFIG] hub.distance : " + maxHubDistance);
+
+            podium = new Location(hubWorld,
+                    (Integer) getConfig().getList("hub.podium.location").get(0),
+                    (Integer) getConfig().getList("hub.podium.location").get(1),
+                    (Integer) getConfig().getList("hub.podium.location").get(2)
+            ); //change the orientation
         }else{
             getLogger().severe("Failed to find the hub. Shutting down the server.");
             getServer().shutdown();
@@ -85,6 +93,7 @@ public class MarioCraft extends JavaPlugin {
         gameState = GameState.INIT;
 
         votes = new ArrayList<>();
+        leaderboard = new ArrayList<>();
 
         raceCount = getConfig().getInt("race.number", 3);
         getLogger().info("[CONFIG] race.number : " + raceCount);
@@ -150,12 +159,20 @@ public class MarioCraft extends JavaPlugin {
         return hub;
     }
 
+    public Location getPodium() {
+        return podium;
+    }
+
     public World getHubWorld() {
         return hubWorld;
     }
 
     public List<GameDifficulty> getVotes() {
         return votes;
+    }
+
+    public List<UUID> getLeaderboard() {
+        return leaderboard;
     }
 
     public int getRaceCount() {
@@ -206,7 +223,7 @@ public class MarioCraft extends JavaPlugin {
         new BukkitRunnable() {
             @Override
             public void run() {
-                if(gameState == GameState.PRE_GAME || gameState == GameState.SELECTION) {
+                if(gameState == GameState.PRE_GAME || gameState == GameState.SELECTION || gameState == GameState.POST_GAME) {
 
                     for(Player p : getServer().getOnlinePlayers()){
 
