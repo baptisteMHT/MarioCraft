@@ -1,3 +1,6 @@
+server:
+  id: mcs01
+
 hub:
   name: "world"
   distance: 100
@@ -12,3 +15,10 @@ race:
   autostart:
     allow: False
     required: 6
+
+database:
+  allow: True
+  address: "127.0.0.1"
+  port: 6379
+  timeout: 4000
+  auth: "abcdefgh"

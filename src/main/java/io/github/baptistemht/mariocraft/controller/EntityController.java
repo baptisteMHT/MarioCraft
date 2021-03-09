@@ -29,6 +29,7 @@ public class EntityController extends PacketAdapter {
 
     private final Map<UUID, Integer> enginesRPM;
     private final Map<UUID, Integer> enginesThr;
+    private final Map<UUID, Integer[]> lastLocation;
 
     public EntityController(MarioCraft plugin, ListenerPriority listenerPriority, PacketType... types) {
         super(plugin, listenerPriority, types);
@@ -36,6 +37,7 @@ public class EntityController extends PacketAdapter {
         instance = plugin;
         enginesRPM = new HashMap<>();
         enginesThr = new HashMap<>();
+        lastLocation = new HashMap<>();
 
         new BukkitRunnable() {
             @Override
@@ -163,5 +165,65 @@ public class EntityController extends PacketAdapter {
             d.updateCheckpoint(checkpointMaterial);
         }
 
+
+        //BANANA DETECTION
+
+        if(standingOnMaterial == Material.YELLOW_WOOL){
+            enginesRPM.replace(p.getUniqueId(), 1);
+            p.getWorld().getBlockAt(l.add(0,-1,0)).setType(p.getWorld().getBlockAt(l.add(0,-4,0)).getType());
+        }
+
+
+        //FALL DOWN DETECTION
+
+        if(deepMaterial != Material.OBSIDIAN && standingOnMaterial != Material.AIR){
+            new BukkitRunnable() {
+                @Override
+                public void run() {
+                    restorePlayer(p);
+                }
+            }.runTask(instance);
+        }else{
+            Integer[] loc = {l.getBlockX(), l.getBlockY(), l.getBlockZ()};
+            Integer[] last = lastLocation.get(p.getUniqueId());
+
+            if(last != null && new Location(l.getWorld(), last[0], last[1], last[2]).distance(l) < 3) return;
+
+            int i = loc[0]-1, j = loc[2]-1;
+            boolean fine = true;
+
+            while(j < loc[2]+2 && fine){
+
+                if(l.getWorld().getBlockAt(i,loc[1]-2,j).getType() != Material.OBSIDIAN){
+                    fine = false;
+                }
+
+                i++;
+                if(i == loc[0]+2){
+                    i = loc[0]-1;
+                    j++;
+                }
+            }
+
+            instance.getLogger().info("FINE ? " + fine);
+
+            if(fine){
+                lastLocation.put(p.getUniqueId(), loc);
+            }
+        }
+
+    }
+
+    //FIX THE TP. UNMOUNT, TP PLAYER, MOUNT AGAIN
+    private void restorePlayer(Player p){
+        enginesRPM.replace(p.getUniqueId(), 0);
+        Integer[] restore = lastLocation.get(p.getUniqueId());
+        if(restore==null) return;
+        instance.getLogger().info("TRYING TO RESTORE");
+        p.getVehicle().remove();
+        p.teleport(new Location(p.getWorld(), restore[0], restore[1]+2, restore[2]));
+        instance.getPlayerManager().getPlayer(p.getUniqueId()).getVehicle().summon(p);
+
+        //FX
     }
 }

@@ -5,6 +5,7 @@ import com.comphenix.protocol.ProtocolLibrary;
 import com.comphenix.protocol.events.ListenerPriority;
 import io.github.baptistemht.mariocraft.command.StartCommand;
 import io.github.baptistemht.mariocraft.controller.EntityController;
+import io.github.baptistemht.mariocraft.database.Database;
 import io.github.baptistemht.mariocraft.game.GameDifficulty;
 import io.github.baptistemht.mariocraft.game.GameState;
 import io.github.baptistemht.mariocraft.game.gui.DifficultySelectorGUI;
@@ -12,6 +13,7 @@ import io.github.baptistemht.mariocraft.game.gui.GUIListeners;
 import io.github.baptistemht.mariocraft.game.gui.TrackListGUI;
 import io.github.baptistemht.mariocraft.game.gui.VehicleSelectorGUI;
 import io.github.baptistemht.mariocraft.game.listener.GameListeners;
+import io.github.baptistemht.mariocraft.game.listener.LootListeners;
 import io.github.baptistemht.mariocraft.game.player.PlayerManager;
 import io.github.baptistemht.mariocraft.task.DifficultyVoteTask;
 import io.github.baptistemht.mariocraft.track.Track;
@@ -51,10 +53,11 @@ public class MarioCraft extends JavaPlugin {
     private PlayerManager playerManager;
     private TracksManager tracksManager;
 
+    private Database database;
+
     private static MarioCraft instance;
 
     private FileConfiguration config;
-
     private FileConfiguration message;
 
     @Override
@@ -78,10 +81,11 @@ public class MarioCraft extends JavaPlugin {
             maxHubDistance = getConfig().getInt("hub.distance", 75);
             getLogger().info("[CONFIG] hub.distance : " + maxHubDistance);
 
+            List<Integer> positions = getConfig().getIntegerList("hub.podium.location");
             podium = new Location(hubWorld,
-                    (Integer) getConfig().getList("hub.podium.location").get(0),
-                    (Integer) getConfig().getList("hub.podium.location").get(1),
-                    (Integer) getConfig().getList("hub.podium.location").get(2)
+                    positions.get(0),
+                    positions.get(1),
+                    positions.get(2)
             ); //change the orientation
         }else{
             getLogger().severe("Failed to find the hub. Shutting down the server.");
@@ -117,12 +121,18 @@ public class MarioCraft extends JavaPlugin {
         getServer().getPluginManager().registerEvents(new WorldListeners(), this);
         getServer().getPluginManager().registerEvents(new GUIListeners(this), this);
         getServer().getPluginManager().registerEvents(new GameListeners(this), this);
+        getServer().getPluginManager().registerEvents(new LootListeners(this), this);
 
         getCommand("start").setExecutor(new StartCommand(this));
 
         tracksManager.loadTracks();
 
-        gameState = GameState.PRE_GAME;
+        boolean db = config.getBoolean("database.allow", false);
+        getLogger().info("[CONFIG] database.allow : " + db);
+
+        database = new Database(this, config.getString("database.address", "127.0.0.1"), config.getInt("database.port", 6379), config.getInt("database.timeout", 4000), config.getString("database.auth", null), db);
+
+        setGameState(GameState.PRE_GAME);
 
         lobbyDistanceChecker();
     }
@@ -130,11 +140,12 @@ public class MarioCraft extends JavaPlugin {
     @Override
     public void onDisable() {
         tracksManager.getTracks().forEach(Track::reset);
+        database.close();
     }
 
 
     public void setupSequence(){
-        gameState = GameState.SELECTION;
+        setGameState(GameState.SELECTION);
         new DifficultyVoteTask(this);
     }
 
@@ -152,6 +163,7 @@ public class MarioCraft extends JavaPlugin {
     }
 
     public void setGameState(GameState gameState) {
+        instance.getDatabase().updateServerState(gameState);
         this.gameState = gameState;
     }
 
@@ -183,7 +195,6 @@ public class MarioCraft extends JavaPlugin {
         raceCount--;
     }
 
-
     public DifficultySelectorGUI getDifficultySelectorGUI() {
         return difficultySelectorGUI;
     }
@@ -196,7 +207,6 @@ public class MarioCraft extends JavaPlugin {
         return trackListGUI;
     }
 
-
     public PlayerManager getPlayerManager() {
         return playerManager;
     }
@@ -205,6 +215,9 @@ public class MarioCraft extends JavaPlugin {
         return tracksManager;
     }
 
+    public Database getDatabase() {
+        return database;
+    }
 
     public static MarioCraft getInstance() {
         return instance;
@@ -216,6 +229,7 @@ public class MarioCraft extends JavaPlugin {
         w.setPVP(false);
         w.setTime(12000);
         w.setDifficulty(Difficulty.PEACEFUL);
+        w.setGameRule(GameRule.DO_DAYLIGHT_CYCLE, false);
         w.setWeatherDuration(0);
     }
 

@@ -1,6 +1,7 @@
 package io.github.baptistemht.mariocraft.task;
 
 import io.github.baptistemht.mariocraft.MarioCraft;
+import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.entity.Player;
 import org.bukkit.scheduler.BukkitRunnable;
@@ -18,16 +19,15 @@ public class EndTask {
             switch (i){
                 case 0:
                     p.teleport(podium);
-                    break;
                 case 1:
                     p.teleport(podium.add(-3,0,0));
-                    break;
                 case 2:
                     p.teleport(podium.add(3,0,0));
-                    break;
                 default:
                     p.teleport(instance.getHub());
             }
+
+            Bukkit.broadcastMessage(i+1 + ". " + p.getName() + " : " + instance.getPlayerManager().getPlayer(p.getUniqueId()).getScore() + " points.");
         }
 
         //Write messages + FX.
@@ -37,7 +37,7 @@ public class EndTask {
             public void run() {
                 instance.getServer().shutdown();
             }
-        }.runTaskLater(instance, 20*1200);
+        }.runTaskLater(instance, 20*60*2);
 
     }
 

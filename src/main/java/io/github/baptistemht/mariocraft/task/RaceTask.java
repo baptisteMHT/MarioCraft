@@ -31,6 +31,8 @@ public class RaceTask {
         this.instance = instance;
         this.t = t;
 
+        instance.getDatabase().updateLiveTrack(t);
+
         pilots = new HashSet<>();
         raceData = new HashMap<>();
         finishers = new ArrayList<>();
@@ -49,6 +51,7 @@ public class RaceTask {
                 }else if(countdown == 0){
                     MessageUtils.sendTitle(ChatColor.YELLOW + "GO!", null, 20);
                     instance.setGameState(GameState.RACING);
+                    instance.getDatabase().updateServerState(GameState.RACING);
                     clock();
                     this.cancel();
                 }
@@ -117,16 +120,23 @@ public class RaceTask {
 
                             if(instance.getRaceCount() == 0){
                                 instance.setGameState(GameState.POST_GAME);
+                                instance.getDatabase().updateServerState(GameState.POST_GAME);
                                 new EndTask(instance);
                             }else{
                                 GameUtils.tpAllToLobby();
                                 instance.setGameState(GameState.SELECTION);
+                                instance.getDatabase().updateServerState(GameState.SELECTION);
                                 new TrackSelectionTask(instance);
                             }
 
-                            t.reset();
-                            t.load();
-                            registerRaceData();
+                            new BukkitRunnable() {
+                                @Override
+                                public void run() {
+                                    t.reset();
+                                    t.load();
+                                    registerRaceData();
+                                }
+                            }.runTaskLater(instance, 100L);
 
                         }
                     }.runTaskLater(instance, 160L);

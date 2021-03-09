@@ -1,10 +1,12 @@
 package io.github.baptistemht.mariocraft.game.listener;
 
 import io.github.baptistemht.mariocraft.MarioCraft;
+import io.github.baptistemht.mariocraft.events.LootEvent;
 import io.github.baptistemht.mariocraft.game.GameState;
 import io.github.baptistemht.mariocraft.game.Loot;
 import io.github.baptistemht.mariocraft.util.GameUtils;
 import io.github.baptistemht.mariocraft.util.MessageUtils;
+import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.GameMode;
 import org.bukkit.entity.Player;
@@ -35,30 +37,36 @@ public class GameListeners implements Listener {
 
             if(s == null)return;
 
-            if(Loot.getLootFromName(s.getItemMeta().getDisplayName()) != null){
+            if(instance.getGameState() == GameState.RACING){
+                Loot loot = Loot.getLootFromName((s.getItemMeta().getDisplayName()));
 
-                new BukkitRunnable() {
-                    @Override
-                    public void run() {
-                        s.setAmount(s.getAmount()-1);
-                        p.updateInventory();
-                    }
-                }.runTaskLater(instance, 1L);
+                if(loot != null){
 
+                    new BukkitRunnable() {
+                        @Override
+                        public void run() {
+                            Bukkit.getPluginManager().callEvent(new LootEvent(loot, p));
+                            s.setAmount(s.getAmount()-1);
+                            p.updateInventory();
+                        }
+                    }.runTaskLater(instance, 1L);
+
+                }
             }
 
-            if(instance.getGameState() == GameState.RACING) return;
 
-            switch (s.getType()){
-                case DIAMOND_SWORD:
-                    instance.getDifficultySelectorGUI().openInventory(p);
-                    break;
-                case BEE_SPAWN_EGG:
-                    instance.getVehicleSelectorGUI().openInventory(p);
-                    break;
-                case MUSIC_DISC_WARD:
-                    instance.getTrackListGUI().openInventory(p);
-                    break;
+            if(instance.getGameState() == GameState.SELECTION){
+                switch (s.getType()){
+                    case DIAMOND_SWORD:
+                        instance.getDifficultySelectorGUI().openInventory(p);
+                        break;
+                    case BEE_SPAWN_EGG:
+                        instance.getVehicleSelectorGUI().openInventory(p);
+                        break;
+                    case MUSIC_DISC_WARD:
+                        instance.getTrackListGUI().openInventory(p);
+                        break;
+                }
             }
 
         }
@@ -91,6 +99,7 @@ public class GameListeners implements Listener {
             switch (instance.getGameState()){
                 case PRE_GAME:
                     e.getPlayer().setGameMode(GameMode.ADVENTURE);
+                    instance.getDatabase().addPlayer(e.getPlayer().getUniqueId());
                     e.setJoinMessage(MessageUtils.getPrefix() + e.getPlayer().getName() + " joined the game! [" + instance.getPlayerManager().getData().size() + "/" + instance.getPlayerManager().getPilotsLimit()+ "]");
                     MessageUtils.sendTitle(e.getPlayer().getUniqueId(), ChatColor.YELLOW + "Welcome to " + ChatColor.RED + "MarioCraft" , ChatColor.GRAY + "Made by " + ChatColor.WHITE + "Arakite", 50);
                     break;
@@ -125,6 +134,7 @@ public class GameListeners implements Listener {
         switch (instance.getGameState()){
             case PRE_GAME:
                 instance.getPlayerManager().removePlayer(e.getPlayer().getUniqueId());
+                instance.getDatabase().removePlayer(e.getPlayer().getUniqueId());
                 break;
             case RACING:
                 if(instance.getPlayerManager().getData().containsKey(e.getPlayer().getUniqueId())){

@@ -15,6 +15,7 @@ import java.util.logging.Level;
 
 public class Track {
 
+    private final String id;
     private final String name;
     private final World world;
     private final Location grid;
@@ -24,7 +25,8 @@ public class Track {
 
     private boolean isLoaded;
 
-    public Track(String name, World world, Location grid, Material selector, int laps, String author){
+    public Track(String id, String name, World world, Location grid, Material selector, int laps, String author){
+        this.id = id;
         this.name = name;
         this.world = world;
         this.grid = grid;
@@ -84,6 +86,10 @@ public class Track {
             }
         }
         isLoaded = false;
+    }
+
+    public String getId() {
+        return id;
     }
 
     public String getName() {

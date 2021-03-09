@@ -46,7 +46,7 @@ public class TracksManager {
 
                 instance.setupWorld(w);
 
-                tracks.add(new Track(s[1].replace("_", " "), w, w.getSpawnLocation(), Material.valueOf(s[2].toUpperCase()), Integer.parseInt(s[3]), s[4]));
+                tracks.add(new Track(s[1], s[2].replace("_", " "), w, w.getSpawnLocation(), Material.valueOf(s[3].toUpperCase()), Integer.parseInt(s[4]), s[5]));
                 votedTracks.add(0);
                 instance.getLogger().log(Level.INFO, "[TrackFinder] Track " + s[1] + " registered.");
             }
