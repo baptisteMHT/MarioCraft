@@ -3,7 +3,7 @@ name: MarioCraft
 author: BaptisteMHT
 version: 0.1
 depend: [ProtocolLib]
-api-version: 1.13
+api-version: 1.16
 commands:
   start:
     description: Start game.

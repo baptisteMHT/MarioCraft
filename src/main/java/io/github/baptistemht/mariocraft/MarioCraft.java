@@ -243,9 +243,7 @@ public class MarioCraft extends JavaPlugin {
 
                         if(p.getWorld().getName().equalsIgnoreCase(hubWorld.getName())){
 
-                            double dist = p.getLocation().distance(hub);
-
-                            if(dist > maxHubDistance){
+                            if(p.getLocation().distance(hub) > maxHubDistance){
 
                                 new BukkitRunnable() {
                                     @Override

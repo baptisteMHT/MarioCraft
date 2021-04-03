@@ -9,9 +9,9 @@ import org.bukkit.entity.Player;
 
 public enum Vehicle {
 
-    LIGHT_KART(ChatColor.BLUE + "Light Kart", EntityType.PIG,2.5, 2, Material.PIG_SPAWN_EGG),
-    KART(ChatColor.WHITE + "Kart", EntityType.SHEEP, 2, 3, Material.SHEEP_SPAWN_EGG),
-    HEAVY_KART(ChatColor.RED + "Heavy Kart", EntityType.TURTLE, 1.5,4, Material.TURTLE_SPAWN_EGG);
+    LIGHT_KART( ChatColor.BLUE + "Light Kart",  EntityType.PIG,     2.5,    2,  Material.PIG_SPAWN_EGG),
+    KART(       ChatColor.WHITE + "Kart",       EntityType.SHEEP,   2,      3,  Material.SHEEP_SPAWN_EGG),
+    HEAVY_KART( ChatColor.RED + "Heavy Kart",   EntityType.TURTLE,  1.5,    4,  Material.TURTLE_SPAWN_EGG);
 
     final String name;
     final EntityType type;

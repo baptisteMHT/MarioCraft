@@ -4,10 +4,10 @@ import org.bukkit.ChatColor;
 import org.bukkit.Material;
 
 public enum Loot {
-    MUSHROOM(ChatColor.BLUE + "Mushroom", Material.RED_MUSHROOM_BLOCK),
-    BANANA(ChatColor.YELLOW + "Banana", Material.YELLOW_CARPET),
-    SQUID(ChatColor.BLACK + "Squid", Material.INK_SAC),
-    SWAP(ChatColor.LIGHT_PURPLE + "Swap", Material.AZURE_BLUET);
+    MUSHROOM(   ChatColor.BLUE + "Mushroom",        Material.RED_MUSHROOM_BLOCK),
+    BANANA(     ChatColor.YELLOW + "Banana",        Material.YELLOW_CARPET),
+    SQUID(      ChatColor.BLACK + "Squid",          Material.INK_SAC),
+    SWAP(       ChatColor.LIGHT_PURPLE + "Swap",    Material.AZURE_BLUET);
 
     final String name;
     final Material material;

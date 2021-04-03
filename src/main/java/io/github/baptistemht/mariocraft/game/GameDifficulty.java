@@ -5,10 +5,10 @@ import org.bukkit.Material;
 
 public enum GameDifficulty {
 
-    EASY(0, ChatColor.AQUA + "50CC", 0.5, Material.IRON_BLOCK),
-    NORMAL(1, ChatColor.BLUE + "100CC", 0.65, Material.GOLD_BLOCK),
-    HARD(2, ChatColor.GREEN + "150CC", 0.8, Material.DIAMOND_BLOCK),
-    EXTREME(3, ChatColor.GOLD + "200CC", 1, Material.EMERALD_BLOCK);
+    EASY(   0,      ChatColor.AQUA + "50CC",    0.5,    Material.IRON_BLOCK),
+    NORMAL( 1,      ChatColor.BLUE + "100CC",   0.65,   Material.GOLD_BLOCK),
+    HARD(   2,      ChatColor.GREEN + "150CC",  0.8,    Material.DIAMOND_BLOCK),
+    EXTREME(3,      ChatColor.GOLD + "200CC",   1,      Material.EMERALD_BLOCK);
 
     final int id;
     final String name;

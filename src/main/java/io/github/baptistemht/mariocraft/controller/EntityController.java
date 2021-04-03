@@ -16,6 +16,8 @@ import org.bukkit.Material;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.EntityType;
 import org.bukkit.entity.Player;
+import org.bukkit.potion.PotionEffect;
+import org.bukkit.potion.PotionEffectType;
 import org.bukkit.scheduler.BukkitRunnable;
 import org.bukkit.util.Vector;
 
@@ -30,6 +32,7 @@ public class EntityController extends PacketAdapter {
     private final Map<UUID, Integer> enginesRPM;
     private final Map<UUID, Integer> enginesThr;
     private final Map<UUID, Integer[]> lastLocation;
+    private final Map<UUID, Long> lastBox;
 
     public EntityController(MarioCraft plugin, ListenerPriority listenerPriority, PacketType... types) {
         super(plugin, listenerPriority, types);
@@ -38,6 +41,7 @@ public class EntityController extends PacketAdapter {
         enginesRPM = new HashMap<>();
         enginesThr = new HashMap<>();
         lastLocation = new HashMap<>();
+        lastBox = new HashMap<>();
 
         new BukkitRunnable() {
             @Override
@@ -52,20 +56,22 @@ public class EntityController extends PacketAdapter {
                     Entity e = p.getVehicle();
                     if(e == null) return;
 
+                    if(lastBox.get(p.getUniqueId()) != null && System.currentTimeMillis() - lastBox.get(p.getUniqueId()) < 2000) return;
+
                     Collection<Entity> detect = e.getWorld().getNearbyEntities(e.getBoundingBox(), entity -> entity.getType() == EntityType.ENDER_CRYSTAL);
 
                     if (detect.size() > 0) {
-                        for (Entity box : detect) {
-                            BoxUtils.loot(p);
-                            Location boxL = box.getLocation();
-                            box.remove();
-                            new BukkitRunnable() {
-                                @Override
-                                public void run() {
-                                    BoxUtils.generateBox(boxL);
-                                }
-                            }.runTaskLater(instance, 100L);
-                        }
+                        Entity box = (Entity) detect.toArray()[0];
+                        BoxUtils.loot(p);
+                        Location boxL = box.getLocation();
+                        box.remove();
+                        lastBox.put(p.getUniqueId(), System.currentTimeMillis());
+                        new BukkitRunnable() {
+                            @Override
+                            public void run() {
+                                BoxUtils.generateBox(boxL);
+                            }
+                        }.runTaskLater(instance, 100L);
                     }
                 }
             }
@@ -176,7 +182,7 @@ public class EntityController extends PacketAdapter {
 
         //FALL DOWN DETECTION
 
-        if(deepMaterial != Material.OBSIDIAN && standingOnMaterial != Material.AIR){
+        if(deepMaterial != Material.OBSIDIAN && standingOnMaterial != Material.AIR && standingOnMaterial != Material.WATER){
             new BukkitRunnable() {
                 @Override
                 public void run() {
@@ -189,41 +195,35 @@ public class EntityController extends PacketAdapter {
 
             if(last != null && new Location(l.getWorld(), last[0], last[1], last[2]).distance(l) < 3) return;
 
-            int i = loc[0]-1, j = loc[2]-1;
+            int i = loc[0]-2, j = loc[2]-2;
             boolean fine = true;
 
-            while(j < loc[2]+2 && fine){
+            while(j < loc[2]+3 && fine){
 
-                if(l.getWorld().getBlockAt(i,loc[1]-2,j).getType() != Material.OBSIDIAN){
-                    fine = false;
-                }
+                if(l.getWorld().getBlockAt(i,loc[1]-2,j).getType() != Material.OBSIDIAN) fine = false;
 
                 i++;
-                if(i == loc[0]+2){
-                    i = loc[0]-1;
+                if(i == loc[0]+3){
+                    i = loc[0]-2;
                     j++;
                 }
             }
 
-            instance.getLogger().info("FINE ? " + fine);
-
-            if(fine){
-                lastLocation.put(p.getUniqueId(), loc);
-            }
+            if(fine)    lastLocation.put(p.getUniqueId(), loc);
         }
 
     }
 
-    //FIX THE TP. UNMOUNT, TP PLAYER, MOUNT AGAIN
     private void restorePlayer(Player p){
         enginesRPM.replace(p.getUniqueId(), 0);
         Integer[] restore = lastLocation.get(p.getUniqueId());
         if(restore==null) return;
-        instance.getLogger().info("TRYING TO RESTORE");
+
+        p.addPotionEffect(new PotionEffect(PotionEffectType.BLINDNESS, 30, 1, true));
+
         p.getVehicle().remove();
         p.teleport(new Location(p.getWorld(), restore[0], restore[1]+2, restore[2]));
         instance.getPlayerManager().getPlayer(p.getUniqueId()).getVehicle().summon(p);
-
-        //FX
+        //SOUND
     }
 }
